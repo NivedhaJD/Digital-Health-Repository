@@ -1,27 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin Dashboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f6fc;
+      margin: 0;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    main {
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #007bff;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <h2>Admin Dashboard</h2>
-  <div class="container">
-    <h3>Manage Appointments</h3>
-    <input type="text" id="appointment" placeholder="Enter appointment info">
-    <button onclick="addAppointment()">Add Appointment</button>
-    <div id="appointments"></div>
-  </div>
+  <header>
+    <h1>Doctor Dashboard</h1>
+  </header>
+  <main>
+    <h2>Welcome, Doctor!</h2>
+    <p>Select an option below:</p>
+    <button onclick="viewPatients()">View Patient Records</button>
+    <button onclick="addHealthRecord()">Add Health Record</button>
+    <button onclick="viewAppointments()">View Appointments</button>
+    <button onclick="logout()">Logout</button>
+  </main>
 
-<script>
-const appointments = [];
-
-function addAppointment() {
-  const info = document.getElementById("appointment").value;
-  appointments.push(info);
-  document.getElementById("appointments").innerHTML += `<p>${info}</p>`;
-}
-</script>
+  <script>
+    function viewPatients() {
+      alert("Feature: View all patients assigned to you.");
+    }
+    function addHealthRecord() {
+      alert("Feature: Add diagnosis, symptoms, and prescription.");
+    }
+    function viewAppointments() {
+      alert("Feature: View upcoming appointments.");
+    }
+    function logout() {
+      window.location.href = "index.html";
+    }
+  </script>
 </body>
 </html>
