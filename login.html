@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2 id="role-title">Login</h2>
+  <div class="container">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+
+<script>
+function login() {
+  const params = new URLSearchParams(window.location.search);
+  const role = params.get("role");
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+
+  if (user === "doctor" && pass === "1234" && role === "doctor") {
+    window.location.href = "doctor.html";
+  } else if (user === "admin" && pass === "1234" && role === "admin") {
+    window.location.href = "admin.html";
+  } else {
+    alert("Invalid credentials!");
+  }
+}
+
+window.onload = () => {
+  const role = new URLSearchParams(window.location.search).get("role");
+  document.getElementById("role-title").textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Login`;
+};
+</script>
+</body>
+</html>

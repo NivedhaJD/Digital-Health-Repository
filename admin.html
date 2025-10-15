@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Admin Dashboard</h2>
+  <div class="container">
+    <h3>Manage Appointments</h3>
+    <input type="text" id="appointment" placeholder="Enter appointment info">
+    <button onclick="addAppointment()">Add Appointment</button>
+    <div id="appointments"></div>
+  </div>
+
+<script>
+const appointments = [];
+
+function addAppointment() {
+  const info = document.getElementById("appointment").value;
+  appointments.push(info);
+  document.getElementById("appointments").innerHTML += `<p>${info}</p>`;
+}
+</script>
+</body>
+</html>

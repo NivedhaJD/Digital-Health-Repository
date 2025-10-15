@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Doctor Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Doctor Dashboard</h2>
+  <div class="container">
+    <h3>Add Health Record</h3>
+    <input type="text" id="patientName" placeholder="Patient Name">
+    <input type="text" id="symptoms" placeholder="Symptoms">
+    <input type="text" id="diagnosis" placeholder="Diagnosis">
+    <input type="text" id="prescription" placeholder="Prescription">
+    <button onclick="addRecord()">Save Record</button>
+    <div id="records"></div>
+  </div>
+
+<script>
+const records = [];
+
+function addRecord() {
+  const patient = document.getElementById("patientName").value;
+  const symptoms = document.getElementById("symptoms").value;
+  const diagnosis = document.getElementById("diagnosis").value;
+  const prescription = document.getElementById("prescription").value;
+
+  const record = { patient, symptoms, diagnosis, prescription };
+  records.push(record);
+
+  document.getElementById("records").innerHTML += 
+    `<p><b>${patient}</b> - ${symptoms}, ${diagnosis}, ${prescription}</p>`;
+}
+</script>
+</body>
+</html>
