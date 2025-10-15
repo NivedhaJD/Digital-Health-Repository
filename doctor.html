@@ -1,37 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Doctor Dashboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+    }
+    header {
+      background-color: #28a745;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #28a745;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e7e34;
+    }
+  </style>
 </head>
 <body>
-  <h2>Doctor Dashboard</h2>
-  <div class="container">
-    <h3>Add Health Record</h3>
-    <input type="text" id="patientName" placeholder="Patient Name">
-    <input type="text" id="symptoms" placeholder="Symptoms">
-    <input type="text" id="diagnosis" placeholder="Diagnosis">
-    <input type="text" id="prescription" placeholder="Prescription">
-    <button onclick="addRecord()">Save Record</button>
-    <div id="records"></div>
-  </div>
+  <header>
+    <h1>Admin Dashboard</h1>
+  </header>
+  <main>
+    <h2>Welcome, Admin!</h2>
+    <p>Manage the system below:</p>
+    <button onclick="manageDoctors()">Manage Doctors</button>
+    <button onclick="managePatients()">Manage Patients</button>
+    <button onclick="viewReports()">View Reports</button>
+    <button onclick="logout()">Logout</button>
+  </main>
 
-<script>
-const records = [];
-
-function addRecord() {
-  const patient = document.getElementById("patientName").value;
-  const symptoms = document.getElementById("symptoms").value;
-  const diagnosis = document.getElementById("diagnosis").value;
-  const prescription = document.getElementById("prescription").value;
-
-  const record = { patient, symptoms, diagnosis, prescription };
-  records.push(record);
-
-  document.getElementById("records").innerHTML += 
-    `<p><b>${patient}</b> - ${symptoms}, ${diagnosis}, ${prescription}</p>`;
-}
-</script>
+  <script>
+    function manageDoctors() {
+      alert("Feature: Add, edit, or remove doctors.");
+    }
+    function managePatients() {
+      alert("Feature: View or remove patient profiles.");
+    }
+    function viewReports() {
+      alert("Feature: Generate hospital reports.");
+    }
+    function logout() {
+      window.location.href = 'index.html';
+    }
+  </script>
 </body>
 </html>
+
