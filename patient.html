@@ -1,21 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Patient Dashboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f8ff;
+      margin: 0;
+    }
+    header {
+      background-color: #17a2b8;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #17a2b8;
+    }
+    button {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #11707f;
+    }
+  </style>
 </head>
 <body>
-  <h2>Patient Dashboard</h2>
-  <div class="container">
-    <h3>Book Appointment</h3>
-    <input type="text" id="doctorName" placeholder="Doctor Name">
-    <input type="date" id="date">
-    <input type="time" id="timeSlot">
+  <header>
+    <h1>Patient Dashboard</h1>
+  </header>
+  <main>
+    <h2>Welcome, Patient!</h2>
+    <p>Choose what you want to do:</p>
     <button onclick="bookAppointment()">Book Appointment</button>
-    <h3>Your Appointments</h3>
-    <div id="myAppointments"></div>
-  </div>
-  <script src="script.js"></script>
+    <button onclick="viewHealthRecords()">View Health Records</button>
+    <button onclick="viewHistory()">View Appointment History</button>
+    <button onclick="logout()">Logout</button>
+  </main>
+
+  <script>
+    function bookAppointment() {
+      alert("Feature: Book appointment with a doctor.");
+    }
+    function viewHealthRecords() {
+      alert("Feature: View your medical history.");
+    }
+    function viewHistory() {
+      alert("Feature: View your past appointments.");
+    }
+    function logout() {
+      window.location.href = "index.html";
+    }
+  </script>
 </body>
 </html>
