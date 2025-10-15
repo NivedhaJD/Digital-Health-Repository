@@ -5,10 +5,12 @@ function login() {
   const user = document.getElementById("username").value;
   const pass = document.getElementById("password").value;
 
-  if (user === "doctor" && pass === "1234" && role === "doctor") {
+  if (role === "doctor" && user === "doctor" && pass === "1234") {
     window.location.href = "doctor.html";
-  } else if (user === "admin" && pass === "1234" && role === "admin") {
+  } else if (role === "admin" && user === "admin" && pass === "1234") {
     window.location.href = "admin.html";
+  } else if (role === "patient" && user === "patient" && pass === "1234") {
+    window.location.href = "patient.html";
   } else {
     alert("Invalid credentials!");
   }
@@ -36,7 +38,6 @@ function addRecord() {
 
   document.getElementById("records").innerHTML += 
     `<p><b>${patient}</b> - ${symptoms}, ${diagnosis}, ${prescription}</p>`;
-
 }
 
 // ===== ADMIN PAGE =====
@@ -46,4 +47,19 @@ function addAppointment() {
   const info = document.getElementById("appointment").value;
   appointments.push(info);
   document.getElementById("appointments").innerHTML += `<p>${info}</p>`;
+}
+
+// ===== PATIENT PAGE =====
+const myAppointments = [];
+
+function bookAppointment() {
+  const doctorName = document.getElementById("doctorName").value;
+  const date = document.getElementById("date").value;
+  const timeSlot = document.getElementById("timeSlot").value;
+
+  const appt = { doctorName, date, timeSlot };
+  myAppointments.push(appt);
+
+  document.getElementById("myAppointments").innerHTML += 
+    `<p><b>Dr. ${doctorName}</b> - ${date} at ${timeSlot}</p>`;
 }
