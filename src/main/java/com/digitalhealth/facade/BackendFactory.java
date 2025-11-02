@@ -2,7 +2,6 @@ package com.digitalhealth.facade;
 
 import com.digitalhealth.dao.*;
 import com.digitalhealth.dao.file.*;
-import com.digitalhealth.dao.mysql.*;
 import com.digitalhealth.service.*;
 
 import java.io.File;
@@ -12,7 +11,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Factory for creating BackendFacade instances with different persistence backends.
+ * Factory for creating BackendFacade instances with file-based persistence.
  * 
  * Usage:
  * <pre>
@@ -21,9 +20,6 @@ import java.util.Properties;
  * 
  * // File-based with custom data directory
  * BackendFacade facade = BackendFactory.createFileBackend("data/myapp");
- * 
- * // MySQL backend (if MySQL dependency is available)
- * BackendFacade facade = BackendFactory.createMySqlBackend(config);
  * 
  * // Auto-detect from application.properties
  * BackendFacade facade = BackendFactory.create();
@@ -34,19 +30,13 @@ public class BackendFactory {
 
     /**
      * Create backend based on application.properties.
-     * Looks for persistence property: file or mysql.
+     * Looks for data.directory property.
      * Defaults to file-based if not specified.
      */
     public static BackendFacade create() {
         Properties props = loadProperties();
-        String persistence = props.getProperty("persistence", "file");
-        
-        if ("mysql".equalsIgnoreCase(persistence)) {
-            return createMySqlBackend(props);
-        } else {
-            String dataDir = props.getProperty("data.directory", DEFAULT_DATA_DIR);
-            return createFileBackend(dataDir);
-        }
+        String dataDir = props.getProperty("data.directory", DEFAULT_DATA_DIR);
+        return createFileBackend(dataDir);
     }
 
     /**
@@ -72,27 +62,6 @@ public class BackendFactory {
         DoctorDao doctorDao = new FileDoctorDao(dataDirectory + "/doctors.dat");
         AppointmentDao appointmentDao = new FileAppointmentDao(dataDirectory + "/appointments.dat");
         HealthRecordDao healthRecordDao = new FileHealthRecordDao(dataDirectory + "/records.dat");
-
-        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao);
-    }
-
-    /**
-     * Create MySQL-based backend.
-     * 
-     * @param config Properties with MySQL connection details:
-     *               - db.url: JDBC URL (e.g., jdbc:mysql://localhost:3306/hospital_db)
-     *               - db.username: Database username
-     *               - db.password: Database password
-     */
-    public static BackendFacade createMySqlBackend(Properties config) {
-        // Create database connection
-        DatabaseConnection dbConnection = new DatabaseConnection(config);
-        
-        // Initialize MySQL DAOs
-        PatientDao patientDao = new MySqlPatientDao(dbConnection);
-        DoctorDao doctorDao = new MySqlDoctorDao(dbConnection);
-        AppointmentDao appointmentDao = new MySqlAppointmentDao(dbConnection);
-        HealthRecordDao healthRecordDao = new MySqlHealthRecordDao(dbConnection);
 
         return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao);
     }
