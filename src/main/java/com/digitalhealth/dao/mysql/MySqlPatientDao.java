@@ -29,7 +29,7 @@ public class MySqlPatientDao implements PatientDao {
                 }
                 
                 // Insert all patients
-                String sql = "INSERT INTO patients (patient_id, name, age, gender, contact) VALUES (?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO patients (id, name, age, gender, contact) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     for (Patient patient : patients.values()) {
                         pstmt.setString(1, patient.getPatientId());
@@ -55,7 +55,7 @@ public class MySqlPatientDao implements PatientDao {
     @Override
     public Map<String, Patient> loadAll() {
         Map<String, Patient> patients = new HashMap<>();
-        String sql = "SELECT patient_id, name, age, gender, contact FROM patients";
+        String sql = "SELECT id, name, age, gender, contact FROM patients";
         
         try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -63,7 +63,7 @@ public class MySqlPatientDao implements PatientDao {
             
             while (rs.next()) {
                 Patient patient = new Patient(
-                    rs.getString("patient_id"),
+                    rs.getString("id"),
                     rs.getString("name"),
                     rs.getInt("age"),
                     rs.getString("gender"),
@@ -80,7 +80,7 @@ public class MySqlPatientDao implements PatientDao {
 
     @Override
     public Optional<Patient> findById(String id) {
-        String sql = "SELECT patient_id, name, age, gender, contact FROM patients WHERE patient_id = ?";
+        String sql = "SELECT id, name, age, gender, contact FROM patients WHERE id = ?";
         
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -90,7 +90,7 @@ public class MySqlPatientDao implements PatientDao {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     Patient patient = new Patient(
-                        rs.getString("patient_id"),
+                        rs.getString("id"),
                         rs.getString("name"),
                         rs.getInt("age"),
                         rs.getString("gender"),
@@ -108,7 +108,7 @@ public class MySqlPatientDao implements PatientDao {
 
     @Override
     public void save(Patient patient) {
-        String sql = "INSERT INTO patients (patient_id, name, age, gender, contact) " +
+        String sql = "INSERT INTO patients (id, name, age, gender, contact) " +
                     "VALUES (?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE name=?, age=?, gender=?, contact=?";
         

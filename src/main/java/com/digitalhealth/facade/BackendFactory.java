@@ -2,6 +2,7 @@ package com.digitalhealth.facade;
 
 import com.digitalhealth.dao.*;
 import com.digitalhealth.dao.file.*;
+import com.digitalhealth.dao.mysql.*;
 import com.digitalhealth.service.*;
 
 import java.io.File;
@@ -79,15 +80,21 @@ public class BackendFactory {
      * Create MySQL-based backend.
      * 
      * @param config Properties with MySQL connection details:
-     *               - db.url: JDBC URL (e.g., jdbc:mysql://localhost:3306/digitalhealth)
+     *               - db.url: JDBC URL (e.g., jdbc:mysql://localhost:3306/hospital_db)
      *               - db.username: Database username
      *               - db.password: Database password
      */
     public static BackendFacade createMySqlBackend(Properties config) {
-        // Note: MySQL implementation is provided separately
-        // This is a placeholder for MySQL backend creation
-        throw new UnsupportedOperationException(
-            "MySQL backend not yet implemented. Use createFileBackend() instead.");
+        // Create database connection
+        DatabaseConnection dbConnection = new DatabaseConnection(config);
+        
+        // Initialize MySQL DAOs
+        PatientDao patientDao = new MySqlPatientDao(dbConnection);
+        DoctorDao doctorDao = new MySqlDoctorDao(dbConnection);
+        AppointmentDao appointmentDao = new MySqlAppointmentDao(dbConnection);
+        HealthRecordDao healthRecordDao = new MySqlHealthRecordDao(dbConnection);
+
+        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao);
     }
 
     private static BackendFacade createFacade(PatientDao patientDao, 
