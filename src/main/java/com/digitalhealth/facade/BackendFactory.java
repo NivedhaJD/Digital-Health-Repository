@@ -30,8 +30,7 @@ public class BackendFactory {
 
     /**
      * Create backend based on application.properties.
-     * Looks for data.directory property.
-     * Defaults to file-based if not specified.
+     * Defaults to file-based persistence.
      */
     public static BackendFacade create() {
         Properties props = loadProperties();
