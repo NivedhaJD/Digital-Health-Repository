@@ -1,0 +1,37 @@
+========================================
+    PATIENT HEALTH HISTORY REPORT
+========================================
+
+PATIENT INFORMATION:
+--------------------
+Patient ID: P1001
+Name: Lea D.
+Age: 19 years
+Gender: F
+Contact: 9999999999
+
+MEDICAL HISTORY:
+----------------
+Total Visits: 2
+
+VISIT #1
+--------
+Record ID: R3001
+Date: 2025-10-15 10:30
+Doctor: Dr. Sarah Johnson (ID: D001)
+Symptoms: Fever, persistent headache, body aches
+Diagnosis: Seasonal flu
+Prescription: Oseltamivir 75mg twice daily for 5 days, rest, plenty of fluids
+
+VISIT #2
+--------
+Record ID: R3002
+Date: 2025-11-02 14:15
+Doctor: Dr. Michael Chen (ID: D002)
+Symptoms: Follow-up visit, feeling better
+Diagnosis: Recovery from flu - cleared
+Prescription: Continue rest for 2 more days, multivitamins
+
+========================================
+        END OF REPORT
+========================================
