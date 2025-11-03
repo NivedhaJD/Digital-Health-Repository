@@ -2,22 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Doctor Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Doctor Dashboard</h2>
-  <div id="doctorInfo"></div>
+  <header>
+    <h1>Doctor Dashboard</h1>
+    <nav><a href="index.html">Home</a></nav>
+  </header>
 
-  <h3>Patient Health Records</h3>
-  <div id="records"></div>
+  <div class="container">
+    <h2>Welcome, Doctor!</h2>
+    <section class="card">
+      <h3>My Appointments</h3>
+      <button id="view-appointments">Load Appointments</button>
+      <div id="appointment-list"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Healthcare Management System</p>
+  </footer>
 
   <script src="script.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      loadDoctorData();
-      loadHealthRecords();
-    });
-  </script>
 </body>
 </html>
