@@ -1,80 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | Digital Health System</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 320px;
-      text-align: center;
-    }
-    h2 {
-      color: #333;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    p {
-      margin-top: 15px;
-      color: #666;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Login | Digital Health Repository</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h2 id="login-title">Login</h2>
-    <input type="text" id="username" placeholder="Enter Username" required />
-    <input type="password" id="password" placeholder="Enter Password" required />
-    <button onclick="login()">Login</button>
-    <p id="role-text"></p>
-  </div>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <label>Username</label>
+    <input type="text" id="username" required>
+
+    <label>Password</label>
+    <input type="password" id="password" required>
+
+    <button type="submit">Login</button>
+  </form>
 
   <script src="script.js"></script>
-  <script>
-    // Show role at top
-    const params = new URLSearchParams(window.location.search);
-    const role = params.get("role");
-    const title = document.getElementById("login-title");
-    const roleText = document.getElementById("role-text");
-    if (role) {
-      title.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Login`;
-      roleText.textContent = `Logging in as: ${role}`;
-    } else {
-      roleText.textContent = "No role selected!";
-    }
-  </script>
 </body>
 </html>
