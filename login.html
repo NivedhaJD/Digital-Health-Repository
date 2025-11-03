@@ -2,20 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login | Digital Health Repository</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Healthcare System</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Login</h2>
-  <form id="loginForm">
-    <label>Username</label>
-    <input type="text" id="username" required>
+  <header>
+    <h1>Healthcare Management System</h1>
+  </header>
 
-    <label>Password</label>
-    <input type="password" id="password" required>
+  <div class="container">
+    <h2>Login</h2>
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <select id="role">
+      <option value="PATIENT">Patient</option>
+      <option value="DOCTOR">Doctor</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+    <button id="login-btn">Login</button>
+    <div id="login-msg"></div>
+  </div>
 
-    <button type="submit">Login</button>
-  </form>
+  <footer>
+    <p>&copy; 2025 Healthcare Management System</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
