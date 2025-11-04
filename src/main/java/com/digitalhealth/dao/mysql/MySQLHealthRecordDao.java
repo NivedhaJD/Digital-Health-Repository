@@ -30,7 +30,7 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
             pstmt.setString(4, record.getSymptoms());
             pstmt.setString(5, record.getDiagnosis());
             pstmt.setString(6, record.getPrescription());
-            pstmt.setTimestamp(7, Timestamp.valueOf(record.getRecordDate()));
+            pstmt.setTimestamp(7, Timestamp.valueOf(record.getDate()));
             // For UPDATE part
             pstmt.setString(8, record.getPatientId());
             pstmt.setString(9, record.getDoctorId());
@@ -46,6 +46,13 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
     }
     
     @Override
+    public void saveAll(Map<String, HealthRecord> records) {
+        for (HealthRecord record : records.values()) {
+            save(record);
+        }
+    }
+    
+    @Override
     public Optional<HealthRecord> findById(String recordId) {
         String sql = "SELECT * FROM health_records WHERE record_id = ?";
         
@@ -56,18 +63,16 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
             ResultSet rs = pstmt.executeQuery();
             
             if (rs.next()) {
+                Timestamp recordDate = rs.getTimestamp("record_date");
                 HealthRecord record = new HealthRecord(
                     rs.getString("record_id"),
                     rs.getString("patient_id"),
                     rs.getString("doctor_id"),
+                    recordDate != null ? recordDate.toLocalDateTime() : LocalDateTime.now(),
                     rs.getString("symptoms"),
                     rs.getString("diagnosis"),
                     rs.getString("prescription")
                 );
-                Timestamp recordDate = rs.getTimestamp("record_date");
-                if (recordDate != null) {
-                    record.setRecordDate(recordDate.toLocalDateTime());
-                }
                 return Optional.of(record);
             }
             
@@ -88,18 +93,16 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
              ResultSet rs = stmt.executeQuery(sql)) {
             
             while (rs.next()) {
+                Timestamp recordDate = rs.getTimestamp("record_date");
                 HealthRecord record = new HealthRecord(
                     rs.getString("record_id"),
                     rs.getString("patient_id"),
                     rs.getString("doctor_id"),
+                    recordDate != null ? recordDate.toLocalDateTime() : LocalDateTime.now(),
                     rs.getString("symptoms"),
                     rs.getString("diagnosis"),
                     rs.getString("prescription")
                 );
-                Timestamp recordDate = rs.getTimestamp("record_date");
-                if (recordDate != null) {
-                    record.setRecordDate(recordDate.toLocalDateTime());
-                }
                 records.put(record.getRecordId(), record);
             }
             
@@ -110,7 +113,9 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
         return records;
     }
     
-    @Override
+    /**
+     * Delete a health record by ID (MySQL-specific method).
+     */
     public void delete(String recordId) {
         String sql = "DELETE FROM health_records WHERE record_id = ?";
         

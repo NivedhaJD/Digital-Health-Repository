@@ -42,6 +42,13 @@ public class MySQLPatientDao implements PatientDao {
     }
     
     @Override
+    public void saveAll(Map<String, Patient> patients) {
+        for (Patient patient : patients.values()) {
+            save(patient);
+        }
+    }
+    
+    @Override
     public Optional<Patient> findById(String patientId) {
         String sql = "SELECT * FROM patients WHERE patient_id = ?";
         
@@ -96,7 +103,9 @@ public class MySQLPatientDao implements PatientDao {
         return patients;
     }
     
-    @Override
+    /**
+     * Delete a patient by ID (MySQL-specific method).
+     */
     public void delete(String patientId) {
         String sql = "DELETE FROM patients WHERE patient_id = ?";
         

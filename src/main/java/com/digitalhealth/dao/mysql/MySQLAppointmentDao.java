@@ -28,18 +28,25 @@ public class MySQLAppointmentDao implements AppointmentDao {
             pstmt.setString(1, appointment.getAppointmentId());
             pstmt.setString(2, appointment.getPatientId());
             pstmt.setString(3, appointment.getDoctorId());
-            pstmt.setTimestamp(4, Timestamp.valueOf(appointment.getAppointmentDateTime()));
+            pstmt.setTimestamp(4, Timestamp.valueOf(appointment.getDateTime()));
             pstmt.setString(5, appointment.getStatus().name());
             // For UPDATE part
             pstmt.setString(6, appointment.getPatientId());
             pstmt.setString(7, appointment.getDoctorId());
-            pstmt.setTimestamp(8, Timestamp.valueOf(appointment.getAppointmentDateTime()));
+            pstmt.setTimestamp(8, Timestamp.valueOf(appointment.getDateTime()));
             pstmt.setString(9, appointment.getStatus().name());
             
             pstmt.executeUpdate();
             
         } catch (SQLException e) {
             throw new RuntimeException("Error saving appointment: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
+    public void saveAll(Map<String, Appointment> appointments) {
+        for (Appointment appointment : appointments.values()) {
+            save(appointment);
         }
     }
     
@@ -58,9 +65,9 @@ public class MySQLAppointmentDao implements AppointmentDao {
                     rs.getString("appointment_id"),
                     rs.getString("patient_id"),
                     rs.getString("doctor_id"),
-                    rs.getTimestamp("appointment_datetime").toLocalDateTime()
+                    rs.getTimestamp("appointment_datetime").toLocalDateTime(),
+                    AppointmentStatus.valueOf(rs.getString("status"))
                 );
-                appointment.setStatus(AppointmentStatus.valueOf(rs.getString("status")));
                 return Optional.of(appointment);
             }
             
@@ -85,9 +92,9 @@ public class MySQLAppointmentDao implements AppointmentDao {
                     rs.getString("appointment_id"),
                     rs.getString("patient_id"),
                     rs.getString("doctor_id"),
-                    rs.getTimestamp("appointment_datetime").toLocalDateTime()
+                    rs.getTimestamp("appointment_datetime").toLocalDateTime(),
+                    AppointmentStatus.valueOf(rs.getString("status"))
                 );
-                appointment.setStatus(AppointmentStatus.valueOf(rs.getString("status")));
                 appointments.put(appointment.getAppointmentId(), appointment);
             }
             
@@ -98,7 +105,9 @@ public class MySQLAppointmentDao implements AppointmentDao {
         return appointments;
     }
     
-    @Override
+    /**
+     * Delete an appointment by ID (MySQL-specific method).
+     */
     public void delete(String appointmentId) {
         String sql = "DELETE FROM appointments WHERE appointment_id = ?";
         

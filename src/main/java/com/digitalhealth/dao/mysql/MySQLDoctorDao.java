@@ -82,6 +82,13 @@ public class MySQLDoctorDao implements DoctorDao {
     }
     
     @Override
+    public void saveAll(Map<String, Doctor> doctors) {
+        for (Doctor doctor : doctors.values()) {
+            save(doctor);
+        }
+    }
+    
+    @Override
     public Optional<Doctor> findById(String doctorId) {
         String sql = "SELECT * FROM doctors WHERE doctor_id = ?";
         
@@ -143,7 +150,9 @@ public class MySQLDoctorDao implements DoctorDao {
         return doctors;
     }
     
-    @Override
+    /**
+     * Delete a doctor by ID (MySQL-specific method).
+     */
     public void delete(String doctorId) {
         String sql = "DELETE FROM doctors WHERE doctor_id = ?";
         
