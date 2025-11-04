@@ -20,6 +20,28 @@ public class DoctorService {
     }
 
     /**
+     * Register a new doctor (auto-generates ID).
+     * 
+     * @param dto DoctorDTO (without ID)
+     * @return Generated Doctor ID
+     * @throws ValidationException if validation fails
+     */
+    public String registerDoctor(DoctorDTO dto) throws ValidationException {
+        validateDoctorRegistrationDTO(dto);
+
+        // Auto-generate doctor ID
+        String doctorId = generateDoctorId();
+        
+        Doctor doctor = new Doctor(doctorId, dto.getName(), dto.getSpecialty());
+        if (dto.getAvailableSlots() != null) {
+            doctor.setAvailableSlots(new ArrayList<>(dto.getAvailableSlots()));
+        }
+
+        doctorDao.save(doctor);
+        return doctor.getDoctorId();
+    }
+
+    /**
      * Add a new doctor.
      * 
      * @param dto DoctorDTO
@@ -110,6 +132,31 @@ public class DoctorService {
         if (dto.getSpecialty() == null || dto.getSpecialty().trim().isEmpty()) {
             throw new ValidationException("Specialty is required");
         }
+    }
+
+    private void validateDoctorRegistrationDTO(DoctorDTO dto) throws ValidationException {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new ValidationException("Doctor name is required");
+        }
+        if (dto.getSpecialty() == null || dto.getSpecialty().trim().isEmpty()) {
+            throw new ValidationException("Specialty is required");
+        }
+    }
+
+    private String generateDoctorId() {
+        Map<String, Doctor> allDoctors = doctorDao.loadAll();
+        int maxNum = 0;
+        for (String id : allDoctors.keySet()) {
+            if (id.startsWith("D")) {
+                try {
+                    int num = Integer.parseInt(id.substring(1));
+                    if (num > maxNum) maxNum = num;
+                } catch (NumberFormatException e) {
+                    // Skip non-numeric IDs
+                }
+            }
+        }
+        return String.format("D%04d", maxNum + 1);
     }
 
     private DoctorDTO toDTO(Doctor doctor) {

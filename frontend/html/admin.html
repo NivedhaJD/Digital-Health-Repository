@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <nav><a href="/" style="color: white;">Home</a></nav>
+  </header>
+
+  <div class="container">
+    <h2>System Overview</h2>
+
+    <section class="card">
+      <h3>All Patients</h3>
+      <button id="load-patients">Load Patients</button>
+      <div id="patients-list"></div>
+    </section>
+
+    <section class="card">
+      <h3>All Doctors</h3>
+      <button id="load-doctors">Load Doctors</button>
+      <div id="doctors-list"></div>
+    </section>
+
+    <section class="card">
+      <h3>All Appointments</h3>
+      <button id="load-all-appointments">Load All Appointments</button>
+      <div id="all-appointments-list"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Healthcare Management System</p>
+  </footer>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

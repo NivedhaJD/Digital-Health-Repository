@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Doctor Dashboard</h1>
+    <nav><a href="/">Home</a></nav>
+  </header>
+
+  <div class="container">
+    <h2>Welcome, Doctor!</h2>
+    
+    <section class="card">
+      <h3>New Doctor Registration</h3>
+      <input id="doctorName" type="text" placeholder="Full Name">
+      <input id="doctorSpecialty" type="text" placeholder="Specialty (e.g., Cardiology, Neurology)">
+      <button id="register-doctor">Register as Doctor</button>
+      <div id="doctor-register-msg"></div>
+    </section>
+
+    <section class="card">
+      <h3>My Appointments</h3>
+      <input id="doctorIdInput" type="text" placeholder="Your Doctor ID">
+      <button id="view-appointments">Load My Appointments</button>
+      <div id="appointment-list"></div>
+    </section>
+
+    <section class="card">
+      <h3>Add Health Record</h3>
+      <input id="recordPatientId" type="text" placeholder="Patient ID">
+      <input id="recordDoctorId" type="text" placeholder="Your Doctor ID">
+      <textarea id="symptoms" placeholder="Symptoms" rows="3"></textarea>
+      <textarea id="diagnosis" placeholder="Diagnosis" rows="3"></textarea>
+      <textarea id="prescription" placeholder="Prescription" rows="3"></textarea>
+      <button id="add-health-record">Add Record</button>
+      <div id="record-msg"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Healthcare Management System</p>
+  </footer>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

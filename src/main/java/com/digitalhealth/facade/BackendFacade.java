@@ -89,6 +89,17 @@ public class BackendFacade {
     // ========== Doctor Operations ==========
 
     /**
+     * Register a new doctor with auto-generated ID.
+     * 
+     * @param dto DoctorDTO with name and specialty (doctorId will be auto-generated)
+     * @return Generated doctor ID (format: D####)
+     * @throws ValidationException if validation fails
+     */
+    public String registerDoctor(DoctorDTO dto) throws ValidationException {
+        return doctorService.registerDoctor(dto);
+    }
+
+    /**
      * Add a new doctor to the system.
      * 
      * @param dto DoctorDTO with doctorId, name, specialty, and optional availableSlots
