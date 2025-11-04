@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Patient Dashboard</h1>
+    <nav><a href="/">Home</a></nav>
+  </header>
+
+  <div class="container">
+    <h2>Welcome, Patient!</h2>
+
+    <section class="card">
+      <h3>Register as Patient</h3>
+      <input id="patientName" type="text" placeholder="Full Name">
+      <input id="patientAge" type="number" placeholder="Age">
+      <select id="patientGender">
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <input id="patientContact" type="text" placeholder="Contact Number">
+      <button id="register-patient">Register</button>
+      <div id="register-msg"></div>
+    </section>
+
+    <section class="card">
+      <h3>Book Appointment</h3>
+      <input id="bookPatientId" type="text" placeholder="Your Patient ID">
+      <select id="bookDoctorId">
+        <option value="">Select Doctor</option>
+      </select>
+      <input id="bookDateTime" type="datetime-local">
+      <button id="book-appointment">Book Appointment</button>
+      <div id="book-msg"></div>
+    </section>
+
+    <section class="card">
+      <h3>My Appointments</h3>
+      <input id="viewPatientId" type="text" placeholder="Your Patient ID">
+      <button id="load-appointments">Show My Appointments</button>
+      <div id="appointments"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Healthcare Management System</p>
+  </footer>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
+

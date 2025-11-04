@@ -44,6 +44,7 @@ public class ApiServer {
         
         // Doctor endpoints
         server.createContext("/api/doctors", this::handleDoctors);
+        server.createContext("/api/doctors/register", this::handleRegisterDoctor);
         
         // Appointment endpoints
         server.createContext("/api/appointments", this::handleAppointments);
@@ -57,9 +58,21 @@ public class ApiServer {
 
     private void handleStaticFiles(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
-        if (path.equals("/")) path = "/index.html";
+        if (path.equals("/")) path = "/html/index.html";
         
-        File file = new File("." + path);
+        // Map paths to frontend directory structure
+        String filePath;
+        if (path.startsWith("/html/") || path.endsWith(".html")) {
+            filePath = "frontend" + (path.startsWith("/html/") ? path : "/html" + path);
+        } else if (path.startsWith("/css/") || path.endsWith(".css")) {
+            filePath = "frontend" + (path.startsWith("/css/") ? path : "/css" + path);
+        } else if (path.startsWith("/js/") || path.endsWith(".js")) {
+            filePath = "frontend" + (path.startsWith("/js/") ? path : "/js" + path);
+        } else {
+            filePath = "frontend" + path;
+        }
+        
+        File file = new File(filePath);
         if (file.exists() && !file.isDirectory()) {
             String contentType = getContentType(path);
             exchange.getResponseHeaders().add("Content-Type", contentType);
@@ -74,7 +87,7 @@ public class ApiServer {
                 }
             }
         } else {
-            String response = "404 Not Found";
+            String response = "404 Not Found: " + filePath;
             exchange.sendResponseHeaders(404, response.length());
             exchange.getResponseBody().write(response.getBytes());
             exchange.getResponseBody().close();
@@ -147,6 +160,34 @@ public class ApiServer {
             List<DoctorDTO> doctors = facade.listDoctors();
             String json = toJson(doctors);
             sendJsonResponse(exchange, 200, json);
+        }
+    }
+
+    private void handleRegisterDoctor(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            String requestBody = readRequestBody(exchange);
+            Map<String, String> data = parseJson(requestBody);
+            
+            try {
+                DoctorDTO dto = new DoctorDTO(
+                    null,  // ID will be auto-generated
+                    data.get("name"),
+                    data.get("specialty"),
+                    null   // No slots initially
+                );
+                
+                String doctorId = facade.registerDoctor(dto);
+                sendJsonResponse(exchange, 201, "{\"doctorId\":\"" + doctorId + "\",\"message\":\"Doctor registered successfully\"}");
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+            }
         }
     }
 

@@ -130,21 +130,6 @@ jacoco.exec
 logs/
 *.log.*
 
-# Database files (if using local SQLite, H2, etc.)
-*.db
-*.sqlite
-*.h2.db
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Package managers
-node_modules/
-package-lock.json
-yarn.lock
-
 # Temporary files
 tmp/
 temp/
