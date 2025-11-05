@@ -32,9 +32,13 @@ public class DoctorService {
         // Auto-generate doctor ID
         String doctorId = generateDoctorId();
         
-        Doctor doctor = new Doctor(doctorId, dto.getName(), dto.getSpecialty());
+        Doctor doctor = new Doctor(doctorId, dto.getName(), dto.getSpecialty(), 
+                                   dto.getContact(), dto.getEmail(), dto.getSchedule());
         if (dto.getAvailableSlots() != null) {
             doctor.setAvailableSlots(new ArrayList<>(dto.getAvailableSlots()));
+        } else {
+            // Generate default available slots for the next 30 days
+            doctor.setAvailableSlots(generateDefaultSlots());
         }
 
         doctorDao.save(doctor);
@@ -166,5 +170,32 @@ public class DoctorService {
                 doctor.getSpecialty(),
                 new ArrayList<>(doctor.getAvailableSlots())
         );
+    }
+
+    /**
+     * Generate default available slots for a new doctor.
+     * Creates slots for the next 30 days, 9 AM to 5 PM, every hour.
+     */
+    public List<LocalDateTime> generateDefaultSlotsForDoctor() {
+        List<LocalDateTime> slots = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Generate slots for the next 30 days
+        for (int day = 0; day < 30; day++) {
+            LocalDateTime date = now.plusDays(day);
+            // For each day, create slots from 9 AM to 5 PM (every hour)
+            for (int hour = 9; hour <= 17; hour++) {
+                slots.add(date.withHour(hour).withMinute(0).withSecond(0).withNano(0));
+            }
+        }
+        
+        return slots;
+    }
+
+    /**
+     * Private wrapper for internal use.
+     */
+    private List<LocalDateTime> generateDefaultSlots() {
+        return generateDefaultSlotsForDoctor();
     }
 }

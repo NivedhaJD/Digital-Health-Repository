@@ -82,7 +82,8 @@ public class DtoMapper {
             appointment.getPatientId(),
             appointment.getDoctorId(),
             appointment.getDateTime(),
-            appointment.getStatus()
+            appointment.getStatus(),
+            appointment.getReason()
         );
     }
 
@@ -96,7 +97,8 @@ public class DtoMapper {
             dto.getPatientId(),
             dto.getDoctorId(),
             dto.getDateTime(),
-            dto.getStatus()
+            dto.getStatus(),
+            dto.getReason()
         );
     }
 
@@ -111,6 +113,7 @@ public class DtoMapper {
             record.getDate(),
             record.getSymptoms(),
             record.getDiagnosis(),
+            record.getTreatment(),
             record.getPrescription()
         );
         dto.setRecordId(record.getRecordId());
@@ -129,6 +132,7 @@ public class DtoMapper {
             dto.getDate(),
             dto.getSymptoms(),
             dto.getDiagnosis(),
+            dto.getTreatment(),
             dto.getPrescription()
         );
     }

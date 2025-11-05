@@ -16,6 +16,7 @@ public class HealthRecord implements Serializable, Comparable<HealthRecord> {
     private LocalDateTime date;
     private String symptoms;
     private String diagnosis;
+    private String treatment;
     private String prescription;
 
     public HealthRecord() {
@@ -29,6 +30,19 @@ public class HealthRecord implements Serializable, Comparable<HealthRecord> {
         this.date = date;
         this.symptoms = symptoms;
         this.diagnosis = diagnosis;
+        this.prescription = prescription;
+    }
+
+    public HealthRecord(String recordId, String patientId, String doctorId, 
+                       LocalDateTime date, String symptoms, String diagnosis, 
+                       String treatment, String prescription) {
+        this.recordId = recordId;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.date = date;
+        this.symptoms = symptoms;
+        this.diagnosis = diagnosis;
+        this.treatment = treatment;
         this.prescription = prescription;
     }
 
@@ -79,6 +93,14 @@ public class HealthRecord implements Serializable, Comparable<HealthRecord> {
 
     public void setDiagnosis(String diagnosis) {
         this.diagnosis = diagnosis;
+    }
+
+    public String getTreatment() {
+        return treatment;
+    }
+
+    public void setTreatment(String treatment) {
+        this.treatment = treatment;
     }
 
     public String getPrescription() {

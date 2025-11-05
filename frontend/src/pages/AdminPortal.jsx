@@ -110,10 +110,10 @@ function AdminPortal() {
         </div>
         <div style={{ maxHeight: '400px', overflow: 'auto' }}>
           {patients.map(patient => (
-            <div key={patient.id} className="list-item">
+            <div key={patient.patientId} className="list-item">
               <strong>{patient.name}</strong> - {patient.age} years, {patient.gender}<br />
               <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
-                ID: {patient.id} | Contact: {patient.contact}
+                ID: {patient.patientId} | Contact: {patient.contact}
               </span>
             </div>
           ))}
@@ -149,7 +149,7 @@ function AdminPortal() {
         </div>
         <div style={{ maxHeight: '400px', overflow: 'auto' }}>
           {appointments.map(apt => (
-            <div key={apt.id} className="list-item">
+            <div key={apt.appointmentId} className="list-item">
               <div style={{ marginBottom: '0.5rem' }}>
                 <strong>{apt.dateTime}</strong>
                 <span style={{ 

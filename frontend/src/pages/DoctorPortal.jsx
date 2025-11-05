@@ -14,7 +14,7 @@ function DoctorPortal() {
     name: '', specialty: '', contact: '', email: '', schedule: ''
   });
   const [recordForm, setRecordForm] = useState({
-    patientId: '', diagnosis: '', treatment: '', prescription: '', recordDate: ''
+    patientId: '', doctorId: '', symptoms: '', diagnosis: '', treatment: '', prescription: '', recordDate: ''
   });
 
   useEffect(() => {
@@ -71,7 +71,7 @@ function DoctorPortal() {
     try {
       await healthRecordAPI.add(recordForm);
       showMessage('Health record added successfully', 'success');
-      setRecordForm({ patientId: '', diagnosis: '', treatment: '', prescription: '', recordDate: '' });
+      setRecordForm({ patientId: '', doctorId: '', symptoms: '', diagnosis: '', treatment: '', prescription: '', recordDate: '' });
     } catch (error) {
       showMessage(error.message || 'Failed to add health record', 'error');
     }
@@ -79,7 +79,7 @@ function DoctorPortal() {
 
   const selectDoctor = (doctor) => {
     setSelectedDoctor(doctor);
-    loadAppointments(doctor.id);
+    loadAppointments(doctor.doctorId);
     setView('appointments');
   };
 
@@ -88,7 +88,7 @@ function DoctorPortal() {
       await appointmentAPI.updateStatus(appointmentId, status);
       showMessage('Appointment status updated', 'success');
       if (selectedDoctor) {
-        loadAppointments(selectedDoctor.id);
+        loadAppointments(selectedDoctor.doctorId);
       }
     } catch (error) {
       showMessage(error.message || 'Failed to update appointment status', 'error');
@@ -224,7 +224,7 @@ function DoctorPortal() {
                     <p style={{ color: 'var(--gray-500)' }}>No appointments found</p>
                   ) : (
                     appointments.map(apt => (
-                      <div key={apt.id} className="list-item">
+                      <div key={apt.appointmentId} className="list-item">
                         <div style={{ marginBottom: '0.5rem' }}>
                           <strong>{apt.dateTime}</strong>
                           <span style={{ 
@@ -242,7 +242,7 @@ function DoctorPortal() {
                         Reason: {apt.reason}<br />
                         <div className="btn-group" style={{ marginTop: '0.75rem' }}>
                           <button 
-                            onClick={() => updateAppointmentStatus(apt.id, 'CONFIRMED')} 
+                            onClick={() => updateAppointmentStatus(apt.appointmentId, 'CONFIRMED')} 
                             className="btn btn-secondary"
                             style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
                             disabled={apt.status === 'COMPLETED'}
@@ -250,7 +250,7 @@ function DoctorPortal() {
                             Confirm
                           </button>
                           <button 
-                            onClick={() => updateAppointmentStatus(apt.id, 'COMPLETED')} 
+                            onClick={() => updateAppointmentStatus(apt.appointmentId, 'COMPLETED')} 
                             className="btn btn-primary"
                             style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
                             disabled={apt.status === 'COMPLETED'}
@@ -258,7 +258,7 @@ function DoctorPortal() {
                             Complete
                           </button>
                           <button 
-                            onClick={() => updateAppointmentStatus(apt.id, 'CANCELLED')} 
+                            onClick={() => updateAppointmentStatus(apt.appointmentId, 'CANCELLED')} 
                             className="btn btn-outline"
                             style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
                             disabled={apt.status === 'COMPLETED'}
@@ -293,27 +293,54 @@ function DoctorPortal() {
                 >
                   <option value="">Select Patient</option>
                   {patients.map(patient => (
-                    <option key={patient.id} value={patient.id}>
-                      {patient.name} (ID: {patient.id})
+                    <option key={patient.patientId} value={patient.patientId}>
+                      {patient.name} (ID: {patient.patientId})
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Record Date</label>
-                <input 
-                  type="date" 
-                  className="form-input" 
-                  value={recordForm.recordDate}
-                  onChange={(e) => setRecordForm({...recordForm, recordDate: e.target.value})}
-                  required 
-                />
+                <label className="form-label">Doctor</label>
+                <select 
+                  className="form-select"
+                  value={recordForm.doctorId}
+                  onChange={(e) => setRecordForm({...recordForm, doctorId: e.target.value})}
+                  required
+                >
+                  <option value="">Select Doctor</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor.doctorId} value={doctor.doctorId}>
+                      Dr. {doctor.name} - {doctor.specialty}
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Record Date</label>
+              <input 
+                type="date" 
+                className="form-input" 
+                value={recordForm.recordDate}
+                onChange={(e) => setRecordForm({...recordForm, recordDate: e.target.value})}
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Symptoms</label>
+              <textarea 
+                className="form-textarea" 
+                placeholder="Patient's reported symptoms"
+                value={recordForm.symptoms}
+                onChange={(e) => setRecordForm({...recordForm, symptoms: e.target.value})}
+                required
+              />
             </div>
             <div className="form-group">
               <label className="form-label">Diagnosis</label>
               <textarea 
                 className="form-textarea" 
+                placeholder="Medical diagnosis"
                 value={recordForm.diagnosis}
                 onChange={(e) => setRecordForm({...recordForm, diagnosis: e.target.value})}
                 required
@@ -323,6 +350,7 @@ function DoctorPortal() {
               <label className="form-label">Treatment</label>
               <textarea 
                 className="form-textarea" 
+                placeholder="Recommended treatment plan"
                 value={recordForm.treatment}
                 onChange={(e) => setRecordForm({...recordForm, treatment: e.target.value})}
                 required
@@ -332,6 +360,7 @@ function DoctorPortal() {
               <label className="form-label">Prescription</label>
               <textarea 
                 className="form-textarea" 
+                placeholder="Prescribed medications (optional)"
                 value={recordForm.prescription}
                 onChange={(e) => setRecordForm({...recordForm, prescription: e.target.value})}
               />

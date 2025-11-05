@@ -15,6 +15,7 @@ public class HealthRecordDTO implements Serializable {
     private LocalDateTime date;
     private String symptoms;
     private String diagnosis;
+    private String treatment;
     private String prescription;
 
     public HealthRecordDTO() {
@@ -27,6 +28,17 @@ public class HealthRecordDTO implements Serializable {
         this.date = date;
         this.symptoms = symptoms;
         this.diagnosis = diagnosis;
+        this.prescription = prescription;
+    }
+
+    public HealthRecordDTO(String patientId, String doctorId, LocalDateTime date, 
+                          String symptoms, String diagnosis, String treatment, String prescription) {
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.date = date;
+        this.symptoms = symptoms;
+        this.diagnosis = diagnosis;
+        this.treatment = treatment;
         this.prescription = prescription;
     }
 
@@ -77,6 +89,14 @@ public class HealthRecordDTO implements Serializable {
 
     public void setDiagnosis(String diagnosis) {
         this.diagnosis = diagnosis;
+    }
+
+    public String getTreatment() {
+        return treatment;
+    }
+
+    public void setTreatment(String treatment) {
+        this.treatment = treatment;
     }
 
     public String getPrescription() {

@@ -15,6 +15,7 @@ public class Appointment implements Serializable, Comparable<Appointment> {
     private String doctorId;
     private LocalDateTime dateTime;
     private AppointmentStatus status;
+    private String reason;
 
     public Appointment() {
         this.status = AppointmentStatus.BOOKED;
@@ -27,6 +28,16 @@ public class Appointment implements Serializable, Comparable<Appointment> {
         this.doctorId = doctorId;
         this.dateTime = dateTime;
         this.status = status != null ? status : AppointmentStatus.BOOKED;
+    }
+
+    public Appointment(String appointmentId, String patientId, String doctorId, 
+                      LocalDateTime dateTime, AppointmentStatus status, String reason) {
+        this.appointmentId = appointmentId;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.dateTime = dateTime;
+        this.status = status != null ? status : AppointmentStatus.BOOKED;
+        this.reason = reason;
     }
 
     // Getters and setters
@@ -70,6 +81,14 @@ public class Appointment implements Serializable, Comparable<Appointment> {
         this.status = status;
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     @Override
     public int compareTo(Appointment other) {
         return this.dateTime.compareTo(other.dateTime);
@@ -96,6 +115,7 @@ public class Appointment implements Serializable, Comparable<Appointment> {
                 ", doctorId='" + doctorId + '\'' +
                 ", dateTime=" + dateTime +
                 ", status=" + status +
+                ", reason='" + reason + '\'' +
                 '}';
     }
 }

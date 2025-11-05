@@ -82,22 +82,24 @@ function PatientPortal() {
   const handleBookAppointment = async (e) => {
     e.preventDefault();
     try {
+      console.log('Booking appointment with data:', appointmentForm);
       await appointmentAPI.book(appointmentForm);
       showMessage('Appointment booked successfully', 'success');
       setAppointmentForm({ patientId: '', doctorId: '', dateTime: '', reason: '' });
       if (selectedPatient) {
-        loadAppointments(selectedPatient.id);
+        loadAppointments(selectedPatient.patientId);
       }
     } catch (error) {
+      console.error('Appointment booking error:', error);
       showMessage(error.message || 'Failed to book appointment', 'error');
     }
   };
 
   const selectPatient = (patient) => {
     setSelectedPatient(patient);
-    setAppointmentForm({ ...appointmentForm, patientId: patient.id });
-    loadAppointments(patient.id);
-    loadHealthRecords(patient.id);
+    setAppointmentForm({ ...appointmentForm, patientId: patient.patientId });
+    loadAppointments(patient.patientId);
+    loadHealthRecords(patient.patientId);
     setView('appointments');
   };
 
@@ -215,9 +217,9 @@ function PatientPortal() {
                 <h2 className="card-title">Select a Patient</h2>
               </div>
               {patients.map(patient => (
-                <div key={patient.id} className="list-item" onClick={() => selectPatient(patient)} style={{ cursor: 'pointer' }}>
+                <div key={patient.patientId} className="list-item" onClick={() => selectPatient(patient)} style={{ cursor: 'pointer' }}>
                   <strong>{patient.name}</strong> - {patient.age} years, {patient.gender}
-                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>ID: {patient.id}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>ID: {patient.patientId}</div>
                 </div>
               ))}
             </div>
@@ -226,9 +228,10 @@ function PatientPortal() {
               <div className="card">
                 <div className="card-header">
                   <h2 className="card-title">Book Appointment</h2>
-                  <p className="card-subtitle">Patient: {selectedPatient.name}</p>
+                  <p className="card-subtitle">Patient: {selectedPatient.name} (ID: {selectedPatient.patientId})</p>
                 </div>
                 <form onSubmit={handleBookAppointment}>
+                  <input type="hidden" value={appointmentForm.patientId} />
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">Doctor</label>
@@ -240,7 +243,7 @@ function PatientPortal() {
                       >
                         <option value="">Select Doctor</option>
                         {doctors.map(doc => (
-                          <option key={doc.id} value={doc.id}>
+                          <option key={doc.doctorId} value={doc.doctorId}>
                             Dr. {doc.name} - {doc.specialty}
                           </option>
                         ))}
@@ -253,8 +256,12 @@ function PatientPortal() {
                         className="form-input" 
                         value={appointmentForm.dateTime}
                         onChange={(e) => setAppointmentForm({...appointmentForm, dateTime: e.target.value})}
+                        min={new Date().toISOString().slice(0, 16)}
                         required 
                       />
+                      <small style={{ color: 'var(--gray-600)', fontSize: '0.75rem', display: 'block', marginTop: '0.25rem' }}>
+                        Available slots: Every hour from 9:00 AM to 5:00 PM (e.g., 09:00, 10:00, 11:00... 17:00)
+                      </small>
                     </div>
                   </div>
                   <div className="form-group">
@@ -281,7 +288,7 @@ function PatientPortal() {
                   <p style={{ color: 'var(--gray-500)' }}>No appointments found</p>
                 ) : (
                   appointments.map(apt => (
-                    <div key={apt.id} className="list-item">
+                    <div key={apt.appointmentId} className="list-item">
                       <strong>{apt.dateTime}</strong><br />
                       Doctor ID: {apt.doctorId} | Status: {apt.status}<br />
                       Reason: {apt.reason}
@@ -302,9 +309,9 @@ function PatientPortal() {
                 <h2 className="card-title">Select a Patient</h2>
               </div>
               {patients.map(patient => (
-                <div key={patient.id} className="list-item" onClick={() => selectPatient(patient)} style={{ cursor: 'pointer' }}>
+                <div key={patient.patientId} className="list-item" onClick={() => selectPatient(patient)} style={{ cursor: 'pointer' }}>
                   <strong>{patient.name}</strong> - {patient.age} years, {patient.gender}
-                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>ID: {patient.id}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>ID: {patient.patientId}</div>
                 </div>
               ))}
             </div>
@@ -323,11 +330,12 @@ function PatientPortal() {
                     <p style={{ color: 'var(--gray-500)' }}>No health records found</p>
                   ) : (
                     healthRecords.map(record => (
-                      <div key={record.id} className="list-item">
-                        <strong>Record Date: {record.recordDate}</strong><br />
-                        Diagnosis: {record.diagnosis}<br />
-                        Treatment: {record.treatment}<br />
-                        Prescription: {record.prescription}
+                      <div key={record.recordId} className="list-item">
+                        <strong>Record Date: {new Date(record.date).toLocaleDateString()}</strong><br />
+                        {record.symptoms && <><strong>Symptoms:</strong> {record.symptoms}<br /></>}
+                        <strong>Diagnosis:</strong> {record.diagnosis}<br />
+                        <strong>Treatment:</strong> {record.treatment}<br />
+                        {record.prescription && <><strong>Prescription:</strong> {record.prescription}</>}
                       </div>
                     ))
                   )}

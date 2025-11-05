@@ -96,6 +96,59 @@ public class AppointmentService {
     }
 
     /**
+     * Book an appointment with a reason for the visit.
+     * 
+     * @param patientId ID of the patient
+     * @param doctorId ID of the doctor
+     * @param dateTime Desired appointment time
+     * @param reason Reason for the appointment
+     * @return AppointmentDTO of the newly created appointment
+     * @throws EntityNotFoundException if patient or doctor not found
+     * @throws SlotUnavailableException if slot is not available
+     */
+    public AppointmentDTO bookAppointment(String patientId, String doctorId, LocalDateTime dateTime, String reason) 
+            throws EntityNotFoundException, SlotUnavailableException, ValidationException {
+        
+        validateBookingInput(patientId, doctorId, dateTime);
+
+        synchronized (lockObject) {
+            // Verify entities exist
+            Patient patient = patientService.getPatientEntity(patientId);
+            Doctor doctor = doctorService.getDoctorEntity(doctorId);
+
+            // Auto-generate slots if doctor has none (for backward compatibility)
+            if (doctor.getAvailableSlots() == null || doctor.getAvailableSlots().isEmpty()) {
+                doctor.setAvailableSlots(doctorService.generateDefaultSlotsForDoctor());
+                doctorService.saveDoctorEntity(doctor);
+            }
+
+            // Check slot availability
+            if (!doctor.hasSlot(dateTime)) {
+                throw new SlotUnavailableException(
+                    "Slot not available for doctor " + doctorId + " at " + dateTime);
+            }
+
+            // Create appointment with reason
+            String appointmentId = "A" + idCounter.getAndIncrement();
+            Appointment appointment = new Appointment(
+                appointmentId, patientId, doctorId, dateTime, AppointmentStatus.BOOKED, reason);
+
+            // Remove slot from doctor's availability
+            doctor.removeSlot(dateTime);
+
+            // Save changes
+            appointmentDao.save(appointment);
+            doctorService.saveDoctorEntity(doctor);
+            
+            // Add appointment to patient
+            patient.getAppointments().add(appointment);
+            patientService.savePatientEntity(patient);
+
+            return toDTO(appointment);
+        }
+    }
+
+    /**
      * Cancel an appointment and restore the slot.
      * 
      * @param appointmentId Appointment ID
