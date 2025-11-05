@@ -1,51 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doctor Dashboard</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <header>
-    <h1>Doctor Dashboard</h1>
-    <nav><a href="/">Home</a></nav>
-  </header>
+  <!doctype html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Doctor — Digital Health</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <header class="header">
+      <div class="brand">Digital Health</div>
+      <nav class="nav"><a href="/html/index.html">Home</a></nav>
+    </header>
+    <main class="wrap">
+      <section class="card">
+        <h2 style="margin:0 0 8px 0">Doctor Dashboard</h2>
 
-  <div class="container">
-    <h2>Welcome, Doctor!</h2>
-    
-    <section class="card">
-      <h3>New Doctor Registration</h3>
-      <input id="doctorName" type="text" placeholder="Full Name">
-      <input id="doctorSpecialty" type="text" placeholder="Specialty (e.g., Cardiology, Neurology)">
-      <button id="register-doctor">Register as Doctor</button>
-      <div id="doctor-register-msg"></div>
-    </section>
+        <div class="sub">
+          <h3>Register Doctor</h3>
+          <label>Name</label>
+          <input id="doctorName" type="text" />
+          <label>Specialty</label>
+          <input id="doctorSpecialty" type="text" />
+          <div style="margin-top:12px">
+            <button id="registerDoctor" class="btn primary">Register</button>
+            <span id="doctorResult" class="muted"></span>
+          </div>
+        </div>
 
-    <section class="card">
-      <h3>My Appointments</h3>
-      <input id="doctorIdInput" type="text" placeholder="Your Doctor ID">
-      <button id="view-appointments">Load My Appointments</button>
-      <div id="appointment-list"></div>
-    </section>
+        <div class="sub" style="margin-top:18px">
+          <h3>Your Appointments</h3>
+          <label>Doctor ID</label>
+          <input id="viewDoctorId" type="text" placeholder="D0001" />
+          <div style="margin-top:8px"><button id="loadDoctorAppointments" class="btn">Load</button></div>
+          <div id="doctorAppointments" style="margin-top:8px"></div>
+        </div>
 
-    <section class="card">
-      <h3>Add Health Record</h3>
-      <input id="recordPatientId" type="text" placeholder="Patient ID">
-      <input id="recordDoctorId" type="text" placeholder="Your Doctor ID">
-      <textarea id="symptoms" placeholder="Symptoms" rows="3"></textarea>
-      <textarea id="diagnosis" placeholder="Diagnosis" rows="3"></textarea>
-      <textarea id="prescription" placeholder="Prescription" rows="3"></textarea>
-      <button id="add-health-record">Add Record</button>
-      <div id="record-msg"></div>
-    </section>
-  </div>
-
-  <footer>
-    <p>&copy; 2025 Healthcare Management System</p>
-  </footer>
-
-  <script src="/js/script.js"></script>
-</body>
-</html>
+        <div class="sub" style="margin-top:18px">
+          <h3>Add Health Record</h3>
+          <label>Patient ID</label>
+          <input id="recordPatientId" type="text" placeholder="P0001" />
+          <label>Symptoms</label>
+          <textarea id="symptoms"></textarea>
+          <label>Diagnosis</label>
+          <textarea id="diagnosis"></textarea>
+          <label>Prescription (optional)</label>
+          <textarea id="prescription"></textarea>
+          <div style="margin-top:12px">
+            <button id="addHealthRecord" class="btn primary">Add Record</button>
+            <span id="healthRecordResult" class="muted"></span>
+          </div>
+        </div>
+      </section>
+      <div class="footer">&copy; 2025 Digital Health</div>
+    </main>
+    <script src="/js/script.js"></script>
+  </body>
+  </html>

@@ -8,52 +8,70 @@
 </head>
 <body>
   <header>
-    <h1>Patient Dashboard</h1>
-    <nav><a href="/">Home</a></nav>
-  </header>
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Patient — Digital Health</title>
+      <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+      <header class="header">
+        <div class="brand">Digital Health</div>
+        <nav class="nav"><a href="/html/index.html">Home</a></nav>
+      </header>
+      <main class="wrap">
+        <section class="card">
+          <h2 style="margin:0 0 8px 0">Patient Dashboard</h2>
 
-  <div class="container">
-    <h2>Welcome, Patient!</h2>
+          <div class="sub">
+            <h3>Register Patient</h3>
+            <label>Name</label>
+            <input id="patientName" type="text" />
+            <label>Age</label>
+            <input id="patientAge" type="number" />
+            <label>Gender</label>
+            <select id="patientGender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            <label>Contact</label>
+            <input id="patientContact" type="text" />
+            <div style="margin-top:12px">
+              <button id="registerPatient" class="btn primary">Register</button>
+              <span id="registerResult" class="muted"></span>
+            </div>
+          </div>
 
-    <section class="card">
-      <h3>Register as Patient</h3>
-      <input id="patientName" type="text" placeholder="Full Name">
-      <input id="patientAge" type="number" placeholder="Age">
-      <select id="patientGender">
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-      <input id="patientContact" type="text" placeholder="Contact Number">
-      <button id="register-patient">Register</button>
-      <div id="register-msg"></div>
-    </section>
+          <div class="sub" style="margin-top:18px">
+            <h3>Book Appointment</h3>
+            <label>Patient ID</label>
+            <input id="bookPatientId" type="text" placeholder="P0001" />
+            <label>Doctor</label>
+            <select id="bookDoctorId"></select>
+            <label>Date & time</label>
+            <input id="bookDateTime" type="datetime-local" />
+            <div style="margin-top:12px">
+              <button id="bookAppointment" class="btn primary">Book</button>
+              <span id="bookResult" class="muted"></span>
+            </div>
+          </div>
 
-    <section class="card">
-      <h3>Book Appointment</h3>
-      <input id="bookPatientId" type="text" placeholder="Your Patient ID">
-      <select id="bookDoctorId">
-        <option value="">Select Doctor</option>
-      </select>
-      <input id="bookDateTime" type="datetime-local">
-      <button id="book-appointment">Book Appointment</button>
-      <div id="book-msg"></div>
-    </section>
-
-    <section class="card">
-      <h3>My Appointments</h3>
-      <input id="viewPatientId" type="text" placeholder="Your Patient ID">
-      <button id="load-appointments">Show My Appointments</button>
-      <div id="appointments"></div>
-    </section>
-  </div>
-
-  <footer>
-    <p>&copy; 2025 Healthcare Management System</p>
-  </footer>
-
-  <script src="/js/script.js"></script>
-</body>
-</html>
+          <div class="sub" style="margin-top:18px">
+            <h3>Your Appointments</h3>
+            <label>Patient ID</label>
+            <input id="viewPatientId" type="text" placeholder="P0001" />
+            <div style="margin-top:8px">
+              <button id="loadAppointments" class="btn">Load</button>
+            </div>
+            <div id="appointmentsList" style="margin-top:8px"></div>
+          </div>
+        </section>
+        <div class="footer">&copy; 2025 Digital Health</div>
+      </main>
+      <script src="/js/script.js"></script>
+    </body>
+    </html>
 

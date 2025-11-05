@@ -1,34 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Digital Health</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <h1>Admin Dashboard</h1>
-    <nav><a href="/" style="color: white;">Home</a></nav>
+  <header class="header">
+    <div class="brand">Digital Health</div>
+    <nav class="nav"><a href="/html/index.html">Home</a></nav>
   </header>
-
-  <div class="container">
-    <h2>System Overview</h2>
-
+  <main class="wrap">
     <section class="card">
-      <h3>All Patients</h3>
-      <button id="load-patients">Load Patients</button>
-      <div id="patients-list"></div>
+      <h2 style="margin:0 0 8px 0">Admin Panel</h2>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="loadPatients" class="btn">Load Patients</button>
+        <button id="loadDoctors" class="btn">Load Doctors</button>
+        <button id="loadAllAppointments" class="btn">Load Appointments</button>
+      </div>
+      <div id="patientsList" class="list muted"></div>
+      <div id="doctorsList" class="list muted" style="margin-top:12px"></div>
+      <div id="allAppointments" class="list muted" style="margin-top:12px"></div>
     </section>
-
-    <section class="card">
-      <h3>All Doctors</h3>
-      <button id="load-doctors">Load Doctors</button>
-      <div id="doctors-list"></div>
-    </section>
-
-    <section class="card">
-      <h3>All Appointments</h3>
+    <div class="footer">&copy; 2025 Digital Health</div>
+  </main>
+  <script src="/js/script.js"></script>
+</body>
+</html>
       <button id="load-all-appointments">Load All Appointments</button>
       <div id="all-appointments-list"></div>
     </section>
