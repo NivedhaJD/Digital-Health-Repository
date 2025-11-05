@@ -1,0 +1,562 @@
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+
+<html lang="en">
+
+<head><html lang="en">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="en"><html lang="en">
+
+    <title>Doctor Portal - Digital Health</title>
+
+    <link rel="stylesheet" href="/css/style.css">    <meta charset="UTF-8">
+
+</head>
+
+<body>    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
+
+    <header class="header">
+
+        <div class="container">    <title>Doctor Portal - Digital Health</title>
+
+            <div class="header-content">
+
+                <a href="/html/index.html" class="logo">Digital Health</a>    <link rel="stylesheet" href="../css/style.css">  <meta charset="UTF-8">  <meta charset="UTF-8">
+
+                <nav class="nav">
+
+                    <a href="/html/index.html" class="nav-link">Home</a></head>
+
+                    <a href="/html/login.html" class="nav-link">Login</a>
+
+                    <a href="/html/patient.html" class="nav-link">Patient Portal</a><body>  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                    <a href="/html/admin.html" class="nav-link">Admin Portal</a>
+
+                </nav>    <header class="header">
+
+            </div>
+
+        </div>        <div class="container">  <title>Doctor Portal - Digital Health</title>  <title>Doctor Dashboard - Digital Health</title>
+
+    </header>
+
+            <div class="header-content">
+
+    <main class="main">
+
+        <div class="container">                <a href="index.html" class="logo">Digital Health</a>  <link rel="stylesheet" href="/css/style.css">  <link rel="stylesheet" href="/css/style.css">
+
+            <div class="hero">
+
+                <h1>Doctor Portal</h1>                <nav class="nav">
+
+                <p>Manage patient care</p>
+
+            </div>                    <a href="index.html" class="nav-link">Home</a></head></head>
+
+
+
+            <div class="card">                    <a href="login.html" class="nav-link">Login</a>
+
+                <div class="card-header">
+
+                    <h2 class="card-title">Doctor Registration</h2>                    <a href="patient.html" class="nav-link">Patient Portal</a><body><body>
+
+                    <p class="card-subtitle">Register as a new doctor</p>
+
+                </div>                    <a href="admin.html" class="nav-link">Admin Portal</a>
+
+
+
+                <form id="doctorForm">                </nav>  <header class="header">  <div class="wrap">
+
+                    <div class="form-row">
+
+                        <div class="form-group">            </div>
+
+                            <label for="doctorId" class="form-label">Doctor ID</label>
+
+                            <input type="text" id="doctorId" class="form-input" placeholder="D1001" required>        </div>    <div class="container">    <header class="header">
+
+                        </div>
+
+                        <div class="form-group">    </header>
+
+                            <label for="doctorName" class="form-label">Full Name</label>
+
+                            <input type="text" id="doctorName" class="form-input" placeholder="Dr. John Smith" required>      <div class="header-content">      <div class="container">
+
+                        </div>
+
+                    </div>    <main class="main">
+
+
+
+                    <div class="form-row">        <div class="container">        <a href="/html/index.html" class="logo">Digital Health</a>        <div class="header-content">
+
+                        <div class="form-group">
+
+                            <label for="specialization" class="form-label">Specialization</label>            <div class="hero">
+
+                            <input type="text" id="specialization" class="form-input" placeholder="Cardiology" required>
+
+                        </div>                <h1>Doctor Portal</h1>        <nav class="nav">          <a href="/html/index.html" class="brand">Digital Health</a>
+
+                        <div class="form-group">
+
+                            <label for="experience" class="form-label">Experience (years)</label>                <p>Manage patient care and medical appointments</p>
+
+                            <input type="number" id="experience" class="form-input" min="0" max="50" placeholder="10" required>
+
+                        </div>            </div>          <a href="/html/index.html">Home</a>          <nav class="nav">
+
+                    </div>
+
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">            <!-- Doctor Registration Section -->          <a href="/html/login.html">Sign Out</a>            <a href="/html/index.html">Home</a>
+
+                            <label for="doctorEmail" class="form-label">Email</label>
+
+                            <input type="email" id="doctorEmail" class="form-input" placeholder="doctor@hospital.com" required>            <div class="card">
+
+                        </div>
+
+                        <div class="form-group">                <div class="card-header">        </nav>            <a href="/html/login.html">Sign Out</a>
+
+                            <label for="doctorPhone" class="form-label">Phone</label>
+
+                            <input type="tel" id="doctorPhone" class="form-input" placeholder="+1234567890" required>                    <h2 class="card-title">Doctor Registration</h2>
+
+                        </div>
+
+                    </div>                    <p class="card-subtitle">Register as a new doctor or update existing information</p>      </div>          </nav>
+
+
+
+                    <div class="btn-group">                </div>
+
+                        <button type="submit" class="btn btn-primary">Register Doctor</button>
+
+                    </div>    </div>        </div>
+
+
+
+                    <div id="doctorMessage"></div>                <form id="doctorForm">
+
+                </form>
+
+            </div>                    <div class="form-row">  </header>      </div>
+
+
+
+            <div class="card">                        <div class="form-group">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">Patient Management</h2>                            <label for="doctorId" class="form-label">Doctor ID</label>    </header>
+
+                    <p class="card-subtitle">View all patients</p>
+
+                </div>                            <input type="text" id="doctorId" class="form-input" placeholder="D1001" required>
+
+
+
+                <div class="btn-group">                        </div>  <main class="main">
+
+                    <button id="viewPatientsBtn" class="btn btn-primary">View All Patients</button>
+
+                </div>                        <div class="form-group">
+
+
+
+                <div id="patientsList" class="list hidden"></div>                            <label for="doctorName" class="form-label">Full Name</label>    <div class="container">    <main class="main-content">
+
+                <div id="patientsMessage"></div>
+
+            </div>                            <input type="text" id="doctorName" class="form-input" placeholder="Dr. John Smith" required>
+
+        </div>
+
+    </main>                        </div>      <!-- Doctor Registration -->      <div class="container">
+
+
+
+    <footer class="footer">                    </div>
+
+        <div class="container">
+
+            <p>&copy; 2024 Digital Health Management System</p>      <div class="card">        <div class="card">
+
+        </div>
+
+    </footer>                    <div class="form-row">
+
+
+
+    <script src="/js/main.js"></script>                        <div class="form-group">        <div class="card-header">          <div class="card-header">
+
+    <script src="/js/doctor.js"></script>
+
+</body>                            <label for="specialization" class="form-label">Specialization</label>
+
+</html>
+                            <input type="text" id="specialization" class="form-input" placeholder="Cardiology" required>          <h1 class="card-title">Doctor Registration</h1>            <h1 class="card-title">Doctor Dashboard</h1>
+
+                        </div>
+
+                        <div class="form-group">          <p class="card-subtitle">Create your doctor profile</p>            <p class="card-subtitle">Manage appointments, patients, and medical records</p>
+
+                            <label for="experience" class="form-label">Years of Experience</label>
+
+                            <input type="number" id="experience" class="form-input" min="0" max="50" placeholder="10" required>        </div>          </div>
+
+                        </div>
+
+                    </div>        </div>
+
+
+
+                    <div class="form-row">        <form id="doctorRegistrationForm">
+
+                        <div class="form-group">
+
+                            <label for="doctorEmail" class="form-label">Email</label>          <div class="form-row">        <!-- Doctor Registration -->
+
+                            <input type="email" id="doctorEmail" class="form-input" placeholder="doctor@hospital.com" required>
+
+                        </div>            <div class="form-group">        <div class="card">
+
+                        <div class="form-group">
+
+                            <label for="doctorPhone" class="form-label">Phone</label>              <label for="doctorName">Full Name</label>          <div class="card-header">
+
+                            <input type="tel" id="doctorPhone" class="form-input" placeholder="+1234567890" required>
+
+                        </div>              <input type="text" id="doctorName" placeholder="Enter your full name" required>            <h2 class="card-title">Register as Doctor</h2>
+
+                    </div>
+
+            </div>            <p class="card-subtitle">Create your doctor profile</p>
+
+                    <div class="btn-group">
+
+                        <button type="submit" class="btn btn-primary">Register Doctor</button>            <div class="form-group">          </div>
+
+                        <button type="button" id="clearDoctorForm" class="btn btn-secondary">Clear Form</button>
+
+                    </div>              <label for="doctorSpecialty">Medical Specialty</label>
+
+
+
+                    <div id="doctorMessage"></div>              <input type="text" id="doctorSpecialty" placeholder="Enter your specialty (e.g., Cardiology)" required>          <form id="doctorRegistrationForm">
+
+                </form>
+
+            </div>            </div>            <div class="form-row">
+
+
+
+            <!-- Patient Search and Management -->          </div>              <div class="form-group">
+
+            <div class="card">
+
+                <div class="card-header">                <label for="doctorName">Full Name</label>
+
+                    <h2 class="card-title">Patient Management</h2>
+
+                    <p class="card-subtitle">Search and manage patient information</p>          <div class="btn-group">                <input type="text" id="doctorName" placeholder="Enter your full name" required>
+
+                </div>
+
+            <button type="button" id="registerDoctor" class="btn btn-primary">Register Doctor</button>              </div>
+
+                <div class="form-group">
+
+                    <label for="patientSearchId" class="form-label">Search Patient by ID</label>          </div>              <div class="form-group">
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">
+
+                        <input type="text" id="patientSearchId" class="form-input" placeholder="P1001" style="flex: 1;">                <label for="doctorSpecialty">Medical Specialty</label>
+
+                        <button id="searchPatientBtn" class="btn btn-primary">Search Patient</button>
+
+                        <button id="listAllPatientsBtn" class="btn btn-outline">List All Patients</button>          <div id="doctorResult" class="message" style="display: none;"></div>                <input type="text" id="doctorSpecialty" placeholder="Enter your specialty (e.g., Cardiology)" required>
+
+                    </div>
+
+                </div>        </form>              </div>
+
+
+
+                <div id="patientSearchResults" class="hidden">      </div>            </div>
+
+                    <h3>Patient Information</h3>
+
+                    <div id="patientDetails"></div>
+
+                </div>
+
+      <!-- View Doctor Appointments -->            <div class="btn-group">
+
+                <div id="allPatients" class="hidden">
+
+                    <h3>All Registered Patients</h3>      <div class="card">              <button type="button" id="registerDoctor" class="btn btn-primary">Register Doctor</button>
+
+                    <div id="patientsList" class="list"></div>
+
+                </div>        <div class="card-header">            </div>
+
+
+
+                <div id="patientSearchMessage"></div>          <h2 class="card-title">Your Appointments</h2>
+
+            </div>
+
+          <p class="card-subtitle">View and manage your scheduled appointments</p>            <div id="doctorResult" class="message" style="display: none;"></div>
+
+            <!-- Appointment Management -->
+
+            <div class="card">        </div>          </form>
+
+                <div class="card-header">
+
+                    <h2 class="card-title">Appointment Management</h2>        </div>
+
+                    <p class="card-subtitle">View and manage doctor appointments</p>
+
+                </div>        <div class="form-group">
+
+
+
+                <div class="form-group">          <label for="viewDoctorId">Doctor ID</label>        <!-- View Doctor Appointments -->
+
+                    <label for="appointmentDoctorId" class="form-label">Enter Doctor ID to View Appointments</label>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">          <input type="text" id="viewDoctorId" placeholder="Enter your Doctor ID (e.g., D0001)">        <div class="card">
+
+                        <input type="text" id="appointmentDoctorId" class="form-input" placeholder="D1001" style="flex: 1;">
+
+                        <button id="viewDoctorAppointmentsBtn" class="btn btn-primary">View Appointments</button>        </div>          <div class="card-header">
+
+                        <button id="listAllAppointmentsBtn" class="btn btn-outline">List All Appointments</button>
+
+                    </div>            <h2 class="card-title">Your Appointments</h2>
+
+                </div>
+
+        <div class="btn-group">            <p class="card-subtitle">View and manage your scheduled appointments</p>
+
+                <div id="doctorAppointments" class="hidden">
+
+                    <h3>My Appointments</h3>          <button type="button" id="loadDoctorAppointments" class="btn btn-secondary">Load Appointments</button>          </div>
+
+                    <div id="doctorAppointmentsList" class="list"></div>
+
+                </div>        </div>
+
+
+
+                <div id="allAppointments" class="hidden">          <div class="form-group">
+
+                    <h3>All System Appointments</h3>
+
+                    <div id="allAppointmentsList" class="list"></div>        <div id="doctorAppointments"></div>            <label for="viewDoctorId">Doctor ID</label>
+
+                </div>
+
+      </div>            <input type="text" id="viewDoctorId" placeholder="Enter your Doctor ID (e.g., D0001)">
+
+                <div id="appointmentManagementMessage"></div>
+
+            </div>          </div>
+
+
+
+            <!-- Health Records Access -->      <!-- Add Health Record -->
+
+            <div class="card">
+
+                <div class="card-header">      <div class="card">          <div class="btn-group">
+
+                    <h2 class="card-title">Health Records Access</h2>
+
+                    <p class="card-subtitle">View patient health records and medical history</p>        <div class="card-header">            <button type="button" id="loadDoctorAppointments" class="btn btn-secondary">Load Appointments</button>
+
+                </div>
+
+          <h2 class="card-title">Add Health Record</h2>          </div>
+
+                <div class="form-group">
+
+                    <label for="healthRecordPatientId" class="form-label">Enter Patient ID to View Health Records</label>          <p class="card-subtitle">Create medical records for patients</p>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">
+
+                        <input type="text" id="healthRecordPatientId" class="form-input" placeholder="P1001" style="flex: 1;">        </div>          <div id="doctorAppointments" class="list"></div>
+
+                        <button id="viewHealthRecordsBtn" class="btn btn-primary">View Records</button>
+
+                        <button id="listAllRecordsBtn" class="btn btn-outline">List All Records</button>        </div>
+
+                    </div>
+
+                </div>        <form id="healthRecordForm">
+
+
+
+                <div id="patientHealthRecords" class="hidden">          <div class="form-row">        <!-- Add Health Record -->
+
+                    <h3>Patient Health Records</h3>
+
+                    <div id="healthRecordsList" class="list"></div>            <div class="form-group">        <div class="card">
+
+                </div>
+
+              <label for="recordPatientId">Patient ID</label>          <div class="card-header">
+
+                <div id="allHealthRecords" class="hidden">
+
+                    <h3>All System Health Records</h3>              <input type="text" id="recordPatientId" placeholder="Enter Patient ID (e.g., P0001)" required>            <h2 class="card-title">Add Health Record</h2>
+
+                    <div id="allHealthRecordsList" class="list"></div>
+
+                </div>            </div>            <p class="card-subtitle">Create medical records for patients</p>
+
+
+
+                <div id="healthRecordsMessage"></div>            <div class="form-group">          </div>
+
+            </div>
+
+              <label for="recordDoctorId">Doctor ID</label>
+
+            <!-- Doctor Information Display -->
+
+            <div class="card">              <input type="text" id="recordDoctorId" placeholder="Enter your Doctor ID (e.g., D0001)" required>          <form id="healthRecordForm">
+
+                <div class="card-header">
+
+                    <h2 class="card-title">Doctor Directory</h2>            </div>            <div class="form-row">
+
+                    <p class="card-subtitle">View doctor information and directory</p>
+
+                </div>          </div>              <div class="form-group">
+
+
+
+                <div class="form-group">                <label for="recordPatientId">Patient ID</label>
+
+                    <label for="doctorSearchId" class="form-label">Search Doctor by ID</label>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">          <div class="form-group">                <input type="text" id="recordPatientId" placeholder="Enter Patient ID (e.g., P0001)" required>
+
+                        <input type="text" id="doctorSearchId" class="form-input" placeholder="D1001" style="flex: 1;">
+
+                        <button id="searchDoctorBtn" class="btn btn-primary">Search Doctor</button>            <label for="symptoms">Symptoms</label>              </div>
+
+                        <button id="listAllDoctorsBtn" class="btn btn-outline">List All Doctors</button>
+
+                    </div>            <textarea id="symptoms" placeholder="Describe patient symptoms..." required></textarea>              <div class="form-group">
+
+                </div>
+
+          </div>                <label for="recordDoctorId">Doctor ID</label>
+
+                <div id="doctorSearchResults" class="hidden">
+
+                    <h3>Doctor Information</h3>                <input type="text" id="recordDoctorId" placeholder="Enter your Doctor ID (e.g., D0001)" required>
+
+                    <div id="doctorDetails"></div>
+
+                </div>          <div class="form-group">              </div>
+
+
+
+                <div id="allDoctors" class="hidden">            <label for="diagnosis">Diagnosis</label>            </div>
+
+                    <h3>All Registered Doctors</h3>
+
+                    <div id="doctorsList" class="list"></div>            <textarea id="diagnosis" placeholder="Enter diagnosis..." required></textarea>
+
+                </div>
+
+          </div>            <div class="form-group">
+
+                <div id="doctorSearchMessage"></div>
+
+            </div>              <label for="symptoms">Symptoms</label>
+
+        </div>
+
+    </main>          <div class="form-group">              <textarea id="symptoms" placeholder="Describe patient symptoms..." required></textarea>
+
+
+
+    <footer class="footer">            <label for="prescription">Prescription (Optional)</label>            </div>
+
+        <div class="container">
+
+            <p>&copy; 2024 Digital Health Management System. Professional healthcare technology solution.</p>            <textarea id="prescription" placeholder="Enter prescription details..."></textarea>
+
+        </div>
+
+    </footer>          </div>            <div class="form-group">
+
+
+
+    <script src="../js/main.js"></script>              <label for="diagnosis">Diagnosis</label>
+
+    <script src="../js/doctor.js"></script>
+
+</body>          <div class="btn-group">              <textarea id="diagnosis" placeholder="Enter diagnosis..." required></textarea>
+
+</html>
+            <button type="button" id="addHealthRecord" class="btn btn-primary">Add Health Record</button>            </div>
+
+          </div>
+
+            <div class="form-group">
+
+          <div id="healthRecordResult" class="message" style="display: none;"></div>              <label for="prescription">Prescription (Optional)</label>
+
+        </form>              <textarea id="prescription" placeholder="Enter prescription details..."></textarea>
+
+      </div>            </div>
+
+    </div>
+
+  </main>            <div class="btn-group">
+
+              <button type="button" id="addHealthRecord" class="btn btn-primary">Add Health Record</button>
+
+  <footer class="footer">            </div>
+
+    <div class="container">
+
+      <p>&copy; 2025 Digital Health. All rights reserved.</p>            <div id="healthRecordResult" class="message" style="display: none;"></div>
+
+    </div>          </form>
+
+  </footer>        </div>
+
+      </div>
+
+  <script src="/js/app.js"></script>    </main>
+
+</body>
+
+</html>    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 Digital Health. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
