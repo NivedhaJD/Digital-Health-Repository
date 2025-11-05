@@ -14,6 +14,9 @@ public class DoctorDTO implements Serializable {
     private String doctorId;
     private String name;
     private String specialty;
+    private String contact;
+    private String email;
+    private String schedule;
     private List<LocalDateTime> availableSlots;
 
     public DoctorDTO() {
@@ -24,6 +27,16 @@ public class DoctorDTO implements Serializable {
         this.doctorId = doctorId;
         this.name = name;
         this.specialty = specialty;
+        this.availableSlots = new ArrayList<>();
+    }
+
+    public DoctorDTO(String doctorId, String name, String specialty, String contact, String email, String schedule) {
+        this.doctorId = doctorId;
+        this.name = name;
+        this.specialty = specialty;
+        this.contact = contact;
+        this.email = email;
+        this.schedule = schedule;
         this.availableSlots = new ArrayList<>();
     }
 
@@ -59,6 +72,30 @@ public class DoctorDTO implements Serializable {
         this.specialty = specialty;
     }
 
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(String schedule) {
+        this.schedule = schedule;
+    }
+
     public List<LocalDateTime> getAvailableSlots() {
         return availableSlots;
     }
@@ -73,6 +110,9 @@ public class DoctorDTO implements Serializable {
                 "doctorId='" + doctorId + '\'' +
                 ", name='" + name + '\'' +
                 ", specialty='" + specialty + '\'' +
+                ", contact='" + contact + '\'' +
+                ", email='" + email + '\'' +
+                ", schedule='" + schedule + '\'' +
                 ", slotsAvailable=" + (availableSlots != null ? availableSlots.size() : 0) +
                 '}';
     }

@@ -128,9 +128,9 @@ function AdminPortal() {
         </div>
         <div className="grid grid-2">
           {doctors.map(doctor => (
-            <div key={doctor.id} className="card" style={{ margin: 0 }}>
+            <div key={doctor.doctorId} className="card" style={{ margin: 0 }}>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Dr. {doctor.name}</h3>
-              <p style={{ color: 'var(--gray-500)', marginBottom: '0.75rem' }}>{doctor.specialization}</p>
+              <p style={{ color: 'var(--gray-500)', marginBottom: '0.75rem' }}>{doctor.specialty}</p>
               <div style={{ fontSize: '0.875rem' }}>
                 <div>📞 {doctor.contact}</div>
                 <div>✉️ {doctor.email}</div>

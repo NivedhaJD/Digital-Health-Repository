@@ -43,12 +43,16 @@ public class DtoMapper {
      */
     public static DoctorDTO toDTO(Doctor doctor) {
         if (doctor == null) return null;
-        return new DoctorDTO(
+        DoctorDTO dto = new DoctorDTO(
             doctor.getDoctorId(),
             doctor.getName(),
             doctor.getSpecialty(),
-            doctor.getAvailableSlots()
+            doctor.getContact(),
+            doctor.getEmail(),
+            doctor.getSchedule()
         );
+        dto.setAvailableSlots(doctor.getAvailableSlots());
+        return dto;
     }
 
     /**
@@ -56,12 +60,16 @@ public class DtoMapper {
      */
     public static Doctor toEntity(DoctorDTO dto) {
         if (dto == null) return null;
-        return new Doctor(
+        Doctor doctor = new Doctor(
             dto.getDoctorId(),
             dto.getName(),
             dto.getSpecialty(),
-            dto.getAvailableSlots()
+            dto.getContact(),
+            dto.getEmail(),
+            dto.getSchedule()
         );
+        doctor.setAvailableSlots(dto.getAvailableSlots());
+        return doctor;
     }
 
     /**

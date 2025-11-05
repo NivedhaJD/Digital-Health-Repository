@@ -180,7 +180,9 @@ public class ApiServer {
                     null,  // ID will be auto-generated
                     data.get("name"),
                     data.get("specialty"),
-                    null   // No slots initially
+                    data.get("contact"),
+                    data.get("email"),
+                    data.get("schedule")
                 );
                 
                 String doctorId = facade.registerDoctor(dto);

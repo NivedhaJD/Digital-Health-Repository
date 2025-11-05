@@ -11,7 +11,7 @@ function DoctorPortal() {
   
   // Form states
   const [doctorForm, setDoctorForm] = useState({
-    name: '', specialization: '', contact: '', email: '', schedule: ''
+    name: '', specialty: '', contact: '', email: '', schedule: ''
   });
   const [recordForm, setRecordForm] = useState({
     patientId: '', diagnosis: '', treatment: '', prescription: '', recordDate: ''
@@ -59,7 +59,7 @@ function DoctorPortal() {
     try {
       await doctorAPI.register(doctorForm);
       showMessage('Doctor registered successfully', 'success');
-      setDoctorForm({ name: '', specialization: '', contact: '', email: '', schedule: '' });
+      setDoctorForm({ name: '', specialty: '', contact: '', email: '', schedule: '' });
       loadDoctors();
     } catch (error) {
       showMessage(error.message || 'Failed to register doctor', 'error');
@@ -142,12 +142,13 @@ function DoctorPortal() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Specialization</label>
+                <label className="form-label">Specialty</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  value={doctorForm.specialization}
-                  onChange={(e) => setDoctorForm({...doctorForm, specialization: e.target.value})}
+                  placeholder="e.g., Cardiology, Pediatrics"
+                  value={doctorForm.specialty}
+                  onChange={(e) => setDoctorForm({...doctorForm, specialty: e.target.value})}
                   required 
                 />
               </div>
@@ -158,6 +159,7 @@ function DoctorPortal() {
                 <input 
                   type="text" 
                   className="form-input" 
+                  placeholder="Phone number"
                   value={doctorForm.contact}
                   onChange={(e) => setDoctorForm({...doctorForm, contact: e.target.value})}
                   required 
@@ -168,6 +170,7 @@ function DoctorPortal() {
                 <input 
                   type="email" 
                   className="form-input" 
+                  placeholder="doctor@example.com"
                   value={doctorForm.email}
                   onChange={(e) => setDoctorForm({...doctorForm, email: e.target.value})}
                   required 
@@ -198,10 +201,10 @@ function DoctorPortal() {
                 <h2 className="card-title">Select a Doctor</h2>
               </div>
               {doctors.map(doctor => (
-                <div key={doctor.id} className="list-item" onClick={() => selectDoctor(doctor)} style={{ cursor: 'pointer' }}>
-                  <strong>Dr. {doctor.name}</strong> - {doctor.specialization}<br />
+                <div key={doctor.doctorId} className="list-item" onClick={() => selectDoctor(doctor)} style={{ cursor: 'pointer' }}>
+                  <strong>Dr. {doctor.name}</strong> - {doctor.specialty}<br />
                   <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
-                    {doctor.contact} | {doctor.email}
+                    📞 {doctor.contact} | ✉️ {doctor.email}
                   </span>
                 </div>
               ))}
@@ -211,7 +214,7 @@ function DoctorPortal() {
               <div className="card">
                 <div className="card-header">
                   <h2 className="card-title">Appointments</h2>
-                  <p className="card-subtitle">Dr. {selectedDoctor.name} - {selectedDoctor.specialization}</p>
+                  <p className="card-subtitle">Dr. {selectedDoctor.name} - {selectedDoctor.specialty}</p>
                 </div>
                 <button type="button" onClick={() => setSelectedDoctor(null)} className="btn btn-secondary">
                   Back to Doctor List

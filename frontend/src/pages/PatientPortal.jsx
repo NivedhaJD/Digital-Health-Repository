@@ -241,7 +241,7 @@ function PatientPortal() {
                         <option value="">Select Doctor</option>
                         {doctors.map(doc => (
                           <option key={doc.id} value={doc.id}>
-                            Dr. {doc.name} - {doc.specialization}
+                            Dr. {doc.name} - {doc.specialty}
                           </option>
                         ))}
                       </select>

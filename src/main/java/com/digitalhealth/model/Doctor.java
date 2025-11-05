@@ -15,6 +15,9 @@ public class Doctor implements Serializable {
     private String doctorId;
     private String name;
     private String specialty;
+    private String contact;
+    private String email;
+    private String schedule;
     private List<LocalDateTime> availableSlots;
 
     public Doctor() {
@@ -25,6 +28,16 @@ public class Doctor implements Serializable {
         this.doctorId = doctorId;
         this.name = name;
         this.specialty = specialty;
+        this.availableSlots = new ArrayList<>();
+    }
+
+    public Doctor(String doctorId, String name, String specialty, String contact, String email, String schedule) {
+        this.doctorId = doctorId;
+        this.name = name;
+        this.specialty = specialty;
+        this.contact = contact;
+        this.email = email;
+        this.schedule = schedule;
         this.availableSlots = new ArrayList<>();
     }
 
@@ -58,6 +71,30 @@ public class Doctor implements Serializable {
 
     public void setSpecialty(String specialty) {
         this.specialty = specialty;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(String schedule) {
+        this.schedule = schedule;
     }
 
     public List<LocalDateTime> getAvailableSlots() {
@@ -110,6 +147,9 @@ public class Doctor implements Serializable {
                 "doctorId='" + doctorId + '\'' +
                 ", name='" + name + '\'' +
                 ", specialty='" + specialty + '\'' +
+                ", contact='" + contact + '\'' +
+                ", email='" + email + '\'' +
+                ", schedule='" + schedule + '\'' +
                 ", availableSlots=" + availableSlots.size() +
                 '}';
     }
