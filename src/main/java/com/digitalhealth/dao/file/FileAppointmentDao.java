@@ -79,4 +79,21 @@ public class FileAppointmentDao implements AppointmentDao {
             lock.writeLock().unlock();
         }
     }
+
+    @Override
+    public boolean exists(String appointmentId) {
+        return findById(appointmentId).isPresent();
+    }
+
+    @Override
+    public void delete(String appointmentId) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Appointment> appointments = loadAll();
+            appointments.remove(appointmentId);
+            saveAll(appointments);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 }

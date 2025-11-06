@@ -5,13 +5,11 @@ import com.digitalhealth.exception.*;
 import com.digitalhealth.facade.BackendFacade;
 import com.digitalhealth.facade.BackendFactory;
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -37,6 +35,11 @@ public class ApiServer {
     private void setupRoutes() {
         // CORS and static files
         server.createContext("/", this::handleStaticFiles);
+        
+        // Authentication endpoints
+        server.createContext("/api/auth/register", this::handleAuthRegister);
+        server.createContext("/api/auth/login", this::handleAuthLogin);
+        server.createContext("/api/auth/validate", this::handleAuthValidate);
         
         // Patient endpoints
         server.createContext("/api/patients", this::handlePatients);
@@ -102,6 +105,104 @@ public class ApiServer {
         return "text/plain";
     }
 
+    // Authentication handlers
+    private void handleAuthRegister(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                // Create UserDTO
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUsername(data.get("username"));
+                userDTO.setPassword(data.get("password"));
+                userDTO.setRole(data.get("role"));
+                userDTO.setLinkedEntityId(data.get("linkedEntityId"));
+                
+                String userId = facade.registerUser(userDTO);
+                sendJsonResponse(exchange, 201, "{\"userId\":\"" + userId + "\",\"message\":\"User registered successfully\"}");
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    private void handleAuthLogin(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                // Create LoginRequestDTO
+                LoginRequestDTO loginRequest = new LoginRequestDTO();
+                loginRequest.setUsername(data.get("username"));
+                loginRequest.setPassword(data.get("password"));
+                
+                LoginResponseDTO response = facade.login(loginRequest);
+                
+                // Convert to JSON
+                String json = String.format("{\"userId\":\"%s\",\"username\":\"%s\",\"role\":\"%s\",\"token\":\"%s\",\"linkedEntityId\":\"%s\"}",
+                    response.getUserId(), response.getUsername(), response.getRole(), response.getToken(),
+                    response.getLinkedEntityId() != null ? response.getLinkedEntityId() : "");
+                
+                sendJsonResponse(exchange, 200, json);
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 401, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    private void handleAuthValidate(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                String token = data.get("token");
+                LoginResponseDTO response = facade.validateToken(token);
+                
+                // Convert to JSON
+                String json = String.format("{\"userId\":\"%s\",\"username\":\"%s\",\"role\":\"%s\",\"token\":\"%s\",\"linkedEntityId\":\"%s\"}",
+                    response.getUserId(), response.getUsername(), response.getRole(), response.getToken(),
+                    response.getLinkedEntityId() != null ? response.getLinkedEntityId() : "");
+                
+                sendJsonResponse(exchange, 200, json);
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 401, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
     // Patient handlers
     private void handlePatients(HttpExchange exchange) throws IOException {
         setCorsHeaders(exchange);
@@ -115,6 +216,26 @@ public class ApiServer {
             List<PatientDTO> patients = facade.listPatients();
             String json = toJson(patients);
             sendJsonResponse(exchange, 200, json);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract patient ID from URL path: /api/patients/{patientId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Patient ID is required\"}");
+                return;
+            }
+            
+            String patientId = parts[3]; // /api/patients/{patientId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deletePatient(patientId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Patient deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
         }
     }
 
@@ -127,10 +248,20 @@ public class ApiServer {
         }
         
         if ("POST".equals(exchange.getRequestMethod())) {
-            String requestBody = readRequestBody(exchange);
-            Map<String, String> data = parseJson(requestBody);
-            
             try {
+                String requestBody = readRequestBody(exchange);
+                System.out.println("Register Patient Request Body: " + requestBody);
+                
+                Map<String, String> data = parseJson(requestBody);
+                System.out.println("Parsed data: " + data);
+                
+                // Validate required fields
+                if (!data.containsKey("name") || !data.containsKey("age") || 
+                    !data.containsKey("gender") || !data.containsKey("contact")) {
+                    sendJsonResponse(exchange, 400, "{\"error\":\"Missing required fields: name, age, gender, contact\"}");
+                    return;
+                }
+                
                 PatientDTO dto = new PatientDTO(
                     null,
                     data.get("name"),
@@ -140,9 +271,18 @@ public class ApiServer {
                 );
                 
                 String patientId = facade.registerPatient(dto);
+                System.out.println("Patient registered successfully: " + patientId);
                 sendJsonResponse(exchange, 201, "{\"patientId\":\"" + patientId + "\",\"message\":\"Patient registered successfully\"}");
             } catch (ValidationException e) {
-                sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+                System.err.println("Validation error: " + e.getMessage());
+                sendJsonResponse(exchange, 400, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (NumberFormatException e) {
+                System.err.println("Number format error: " + e.getMessage());
+                sendJsonResponse(exchange, 400, "{\"error\":\"Invalid age format\"}");
+            } catch (Exception e) {
+                System.err.println("Server error: " + e.getMessage());
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"Server error: " + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }
@@ -160,6 +300,26 @@ public class ApiServer {
             List<DoctorDTO> doctors = facade.listDoctors();
             String json = toJson(doctors);
             sendJsonResponse(exchange, 200, json);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract doctor ID from URL path: /api/doctors/{doctorId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Doctor ID is required\"}");
+                return;
+            }
+            
+            String doctorId = parts[3]; // /api/doctors/{doctorId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteDoctor(doctorId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Doctor deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
         }
     }
 
@@ -215,6 +375,26 @@ public class ApiServer {
             } else {
                 List<AppointmentDTO> appointments = facade.listAppointments();
                 sendJsonResponse(exchange, 200, toJson(appointments));
+            }
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract appointment ID from URL path: /api/appointments/{appointmentId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Appointment ID is required\"}");
+                return;
+            }
+            
+            String appointmentId = parts[3]; // /api/appointments/{appointmentId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteAppointment(appointmentId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Appointment deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }
@@ -299,6 +479,26 @@ public class ApiServer {
                 List<HealthRecordDTO> records = facade.listAllHealthRecords();
                 sendJsonResponse(exchange, 200, toJson(records));
             }
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract health record ID from URL path: /api/health-records/{recordId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Health record ID is required\"}");
+                return;
+            }
+            
+            String recordId = parts[3]; // /api/health-records/{recordId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteHealthRecord(recordId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Health record deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
         }
     }
 
@@ -354,14 +554,27 @@ public class ApiServer {
 
     private Map<String, String> parseJson(String json) {
         Map<String, String> map = new HashMap<>();
-        // Match "key":"value" patterns
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
-        java.util.regex.Matcher matcher = pattern.matcher(json);
         
-        while (matcher.find()) {
-            String key = matcher.group(1);
-            String value = matcher.group(2);
+        // Match "key":"value" patterns (for strings)
+        java.util.regex.Pattern stringPattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
+        java.util.regex.Matcher stringMatcher = stringPattern.matcher(json);
+        
+        while (stringMatcher.find()) {
+            String key = stringMatcher.group(1);
+            String value = stringMatcher.group(2);
             map.put(key, value);
+        }
+        
+        // Match "key":number patterns (for numbers and booleans)
+        java.util.regex.Pattern numberPattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*([0-9.]+|true|false|null)");
+        java.util.regex.Matcher numberMatcher = numberPattern.matcher(json);
+        
+        while (numberMatcher.find()) {
+            String key = numberMatcher.group(1);
+            String value = numberMatcher.group(2);
+            if (!map.containsKey(key)) { // Don't overwrite string values
+                map.put(key, value);
+            }
         }
         
         return map;
@@ -411,6 +624,15 @@ public class ApiServer {
         exchange.sendResponseHeaders(statusCode, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.getResponseBody().close();
+    }
+    
+    private String escapeJson(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("\t", "\\t");
     }
 
     public void start() {

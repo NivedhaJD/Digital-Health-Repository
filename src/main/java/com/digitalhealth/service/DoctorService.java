@@ -173,6 +173,19 @@ public class DoctorService {
     }
 
     /**
+     * Delete a doctor by ID.
+     * 
+     * @param doctorId ID of the doctor to delete
+     * @throws EntityNotFoundException if doctor doesn't exist
+     */
+    public void deleteDoctor(String doctorId) throws EntityNotFoundException {
+        if (!doctorDao.exists(doctorId)) {
+            throw new EntityNotFoundException("Doctor not found with ID: " + doctorId);
+        }
+        doctorDao.delete(doctorId);
+    }
+
+    /**
      * Generate default available slots for a new doctor.
      * Creates slots for the next 30 days, 9 AM to 5 PM, every hour.
      */

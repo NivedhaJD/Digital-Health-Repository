@@ -102,10 +102,24 @@ public class MySQLPatientDao implements PatientDao {
         
         return patients;
     }
-    
-    /**
-     * Delete a patient by ID (MySQL-specific method).
-     */
+
+    @Override
+    public boolean exists(String patientId) {
+        String sql = "SELECT COUNT(*) FROM patients WHERE patient_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, patientId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking if patient exists: " + e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
     public void delete(String patientId) {
         String sql = "DELETE FROM patients WHERE patient_id = ?";
         

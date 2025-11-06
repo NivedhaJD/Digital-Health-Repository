@@ -66,8 +66,10 @@ public class BackendFactory {
         DoctorDao doctorDao = new MySQLDoctorDao();
         AppointmentDao appointmentDao = new MySQLAppointmentDao();
         HealthRecordDao healthRecordDao = new MySQLHealthRecordDao();
+        // For now, use file-based for users even with MySQL (can be changed later)
+        UserDao userDao = new FileUserDao("data/users.dat");
 
-        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao);
+        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao, userDao);
     }
 
     /**
@@ -93,14 +95,16 @@ public class BackendFactory {
         DoctorDao doctorDao = new FileDoctorDao(dataDirectory + "/doctors.dat");
         AppointmentDao appointmentDao = new FileAppointmentDao(dataDirectory + "/appointments.dat");
         HealthRecordDao healthRecordDao = new FileHealthRecordDao(dataDirectory + "/records.dat");
+        UserDao userDao = new FileUserDao(dataDirectory + "/users.dat");
 
-        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao);
+        return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao, userDao);
     }
 
     private static BackendFacade createFacade(PatientDao patientDao, 
                                              DoctorDao doctorDao,
                                              AppointmentDao appointmentDao, 
-                                             HealthRecordDao healthRecordDao) {
+                                             HealthRecordDao healthRecordDao,
+                                             UserDao userDao) {
         // Initialize services
         PatientService patientService = new PatientService(patientDao);
         DoctorService doctorService = new DoctorService(doctorDao);
@@ -110,13 +114,15 @@ public class BackendFactory {
             healthRecordDao, patientService, doctorService);
         ExportService exportService = new ExportService(
             patientService, healthRecordService, doctorService);
+        AuthService authService = new AuthService(userDao);
 
         return new BackendFacade(
             patientService, 
             doctorService, 
             appointmentService, 
             healthRecordService, 
-            exportService
+            exportService,
+            authService
         );
     }
 

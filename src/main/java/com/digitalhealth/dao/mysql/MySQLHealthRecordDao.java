@@ -112,10 +112,24 @@ public class MySQLHealthRecordDao implements HealthRecordDao {
         
         return records;
     }
-    
-    /**
-     * Delete a health record by ID (MySQL-specific method).
-     */
+
+    @Override
+    public boolean exists(String recordId) {
+        String sql = "SELECT COUNT(*) FROM health_records WHERE record_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, recordId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking if health record exists: " + e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
     public void delete(String recordId) {
         String sql = "DELETE FROM health_records WHERE record_id = ?";
         

@@ -26,15 +26,22 @@ public class DatabaseConnection {
                 .getResourceAsStream("application.properties")) {
             
             if (input == null) {
-                System.out.println("Unable to find application.properties, using defaults");
-                setDefaultConfiguration();
+                System.out.println("Unable to find application.properties");
+                DB_URL = null; // No database configured
                 return;
             }
             
             Properties prop = new Properties();
             prop.load(input);
             
-            DB_URL = prop.getProperty("db.url", "jdbc:mysql://localhost:3306/digital_health_db");
+            DB_URL = prop.getProperty("db.url");
+            
+            // If db.url is not set, database is disabled
+            if (DB_URL == null || DB_URL.trim().isEmpty()) {
+                System.out.println("Database not configured in application.properties");
+                return;
+            }
+            
             DB_USERNAME = prop.getProperty("db.username", "root");
             DB_PASSWORD = prop.getProperty("db.password", "root");
             DB_DRIVER = prop.getProperty("db.driver", "com.mysql.cj.jdbc.Driver");
@@ -46,15 +53,8 @@ public class DatabaseConnection {
             
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error loading database configuration: " + e.getMessage());
-            setDefaultConfiguration();
+            DB_URL = null; // Disable database on error
         }
-    }
-    
-    private static void setDefaultConfiguration() {
-        DB_URL = "jdbc:mysql://localhost:3306/digital_health_db";
-        DB_USERNAME = "root";
-        DB_PASSWORD = "root";
-        DB_DRIVER = "com.mysql.cj.jdbc.Driver";
     }
     
     /**
@@ -88,10 +88,20 @@ public class DatabaseConnection {
      * @return true if connection successful, false otherwise
      */
     public static boolean testConnection() {
+        // If DB_URL is null, database is not configured
+        if (DB_URL == null || DB_URL.trim().isEmpty()) {
+            System.out.println("Database not configured - using file-based storage");
+            return false;
+        }
+        
         try (Connection conn = getConnection()) {
-            return conn != null && !conn.isClosed();
+            boolean isConnected = conn != null && !conn.isClosed();
+            if (isConnected) {
+                System.out.println("Successfully connected to database: " + DB_URL);
+            }
+            return isConnected;
         } catch (SQLException e) {
-            System.err.println("Database connection test failed: " + e.getMessage());
+            System.err.println("Database connection failed: " + e.getMessage());
             return false;
         }
     }
