@@ -16,12 +16,14 @@ async function apiRequest(endpoint, options = {}) {
       try {
         return JSON.parse(text);
       } catch {
-        return text;
+        return { error: text };
       }
     });
 
     if (!response.ok) {
-      throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+      // Handle error messages from backend (can be in 'error' or 'message' field)
+      const errorMessage = data.error || data.message || `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
     }
 
     return data;

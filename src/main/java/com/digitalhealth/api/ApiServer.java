@@ -5,13 +5,11 @@ import com.digitalhealth.exception.*;
 import com.digitalhealth.facade.BackendFacade;
 import com.digitalhealth.facade.BackendFactory;
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -127,10 +125,20 @@ public class ApiServer {
         }
         
         if ("POST".equals(exchange.getRequestMethod())) {
-            String requestBody = readRequestBody(exchange);
-            Map<String, String> data = parseJson(requestBody);
-            
             try {
+                String requestBody = readRequestBody(exchange);
+                System.out.println("Register Patient Request Body: " + requestBody);
+                
+                Map<String, String> data = parseJson(requestBody);
+                System.out.println("Parsed data: " + data);
+                
+                // Validate required fields
+                if (!data.containsKey("name") || !data.containsKey("age") || 
+                    !data.containsKey("gender") || !data.containsKey("contact")) {
+                    sendJsonResponse(exchange, 400, "{\"error\":\"Missing required fields: name, age, gender, contact\"}");
+                    return;
+                }
+                
                 PatientDTO dto = new PatientDTO(
                     null,
                     data.get("name"),
@@ -140,9 +148,18 @@ public class ApiServer {
                 );
                 
                 String patientId = facade.registerPatient(dto);
+                System.out.println("Patient registered successfully: " + patientId);
                 sendJsonResponse(exchange, 201, "{\"patientId\":\"" + patientId + "\",\"message\":\"Patient registered successfully\"}");
             } catch (ValidationException e) {
-                sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+                System.err.println("Validation error: " + e.getMessage());
+                sendJsonResponse(exchange, 400, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (NumberFormatException e) {
+                System.err.println("Number format error: " + e.getMessage());
+                sendJsonResponse(exchange, 400, "{\"error\":\"Invalid age format\"}");
+            } catch (Exception e) {
+                System.err.println("Server error: " + e.getMessage());
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"Server error: " + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }
@@ -354,14 +371,27 @@ public class ApiServer {
 
     private Map<String, String> parseJson(String json) {
         Map<String, String> map = new HashMap<>();
-        // Match "key":"value" patterns
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
-        java.util.regex.Matcher matcher = pattern.matcher(json);
         
-        while (matcher.find()) {
-            String key = matcher.group(1);
-            String value = matcher.group(2);
+        // Match "key":"value" patterns (for strings)
+        java.util.regex.Pattern stringPattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
+        java.util.regex.Matcher stringMatcher = stringPattern.matcher(json);
+        
+        while (stringMatcher.find()) {
+            String key = stringMatcher.group(1);
+            String value = stringMatcher.group(2);
             map.put(key, value);
+        }
+        
+        // Match "key":number patterns (for numbers and booleans)
+        java.util.regex.Pattern numberPattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*([0-9.]+|true|false|null)");
+        java.util.regex.Matcher numberMatcher = numberPattern.matcher(json);
+        
+        while (numberMatcher.find()) {
+            String key = numberMatcher.group(1);
+            String value = numberMatcher.group(2);
+            if (!map.containsKey(key)) { // Don't overwrite string values
+                map.put(key, value);
+            }
         }
         
         return map;
@@ -411,6 +441,15 @@ public class ApiServer {
         exchange.sendResponseHeaders(statusCode, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.getResponseBody().close();
+    }
+    
+    private String escapeJson(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("\t", "\\t");
     }
 
     public void start() {
