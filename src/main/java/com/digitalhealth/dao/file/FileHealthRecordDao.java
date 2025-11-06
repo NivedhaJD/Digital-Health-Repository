@@ -79,4 +79,21 @@ public class FileHealthRecordDao implements HealthRecordDao {
             lock.writeLock().unlock();
         }
     }
+
+    @Override
+    public boolean exists(String recordId) {
+        return findById(recordId).isPresent();
+    }
+
+    @Override
+    public void delete(String recordId) {
+        lock.writeLock().lock();
+        try {
+            Map<String, HealthRecord> records = loadAll();
+            records.remove(recordId);
+            saveAll(records);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 }

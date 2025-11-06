@@ -33,4 +33,17 @@ public interface AppointmentDao {
      * @param appointment Appointment to save
      */
     void save(Appointment appointment);
+
+    /**
+     * Check if an appointment exists by ID.
+     * @param appointmentId Appointment ID
+     * @return true if exists, false otherwise
+     */
+    boolean exists(String appointmentId);
+
+    /**
+     * Delete an appointment by ID.
+     * @param appointmentId Appointment ID
+     */
+    void delete(String appointmentId);
 }

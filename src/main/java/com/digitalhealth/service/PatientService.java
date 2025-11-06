@@ -146,6 +146,19 @@ public class PatientService {
         }
     }
 
+    /**
+     * Delete a patient by ID.
+     * 
+     * @param patientId ID of the patient to delete
+     * @throws EntityNotFoundException if patient doesn't exist
+     */
+    public void deletePatient(String patientId) throws EntityNotFoundException {
+        if (!patientDao.exists(patientId)) {
+            throw new EntityNotFoundException("Patient not found with ID: " + patientId);
+        }
+        patientDao.delete(patientId);
+    }
+
     private PatientDTO toDTO(Patient patient) {
         return new PatientDTO(
                 patient.getPatientId(),

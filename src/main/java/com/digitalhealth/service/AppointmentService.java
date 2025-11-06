@@ -2,6 +2,7 @@ package com.digitalhealth.service;
 
 import com.digitalhealth.dao.AppointmentDao;
 import com.digitalhealth.dto.AppointmentDTO;
+import com.digitalhealth.dto.DoctorDTO;
 import com.digitalhealth.exception.EntityNotFoundException;
 import com.digitalhealth.exception.SlotUnavailableException;
 import com.digitalhealth.exception.ValidationException;
@@ -305,6 +306,37 @@ public class AppointmentService {
         if (dateTime.isBefore(LocalDateTime.now())) {
             throw new ValidationException("Cannot book appointment in the past");
         }
+    }
+
+    /**
+     * Delete an appointment by ID.
+     * 
+     * @param appointmentId ID of the appointment to delete
+     * @throws EntityNotFoundException if appointment doesn't exist
+     */
+    public void deleteAppointment(String appointmentId) throws EntityNotFoundException {
+        Appointment appointment = appointmentDao.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found: " + appointmentId));
+        
+        // Return the slot to doctor's available slots if appointment is not completed
+        if (appointment.getStatus() != AppointmentStatus.COMPLETED && 
+            appointment.getStatus() != AppointmentStatus.CANCELLED) {
+            try {
+                DoctorDTO doctorDTO = doctorService.getDoctor(appointment.getDoctorId());
+                Doctor doctor = new Doctor(
+                    doctorDTO.getDoctorId(),
+                    doctorDTO.getName(),
+                    doctorDTO.getSpecialty(),
+                    doctorDTO.getAvailableSlots()
+                );
+                doctor.addSlot(appointment.getDateTime());
+                doctorService.saveDoctorEntity(doctor);
+            } catch (Exception e) {
+                System.err.println("Warning: Could not return slot to doctor: " + e.getMessage());
+            }
+        }
+        
+        appointmentDao.delete(appointmentId);
     }
 
     private AppointmentDTO toDTO(Appointment appointment) {

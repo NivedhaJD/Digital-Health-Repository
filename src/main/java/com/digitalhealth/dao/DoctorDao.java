@@ -33,4 +33,17 @@ public interface DoctorDao {
      * @param doctor Doctor to save
      */
     void save(Doctor doctor);
+
+    /**
+     * Check if a doctor exists.
+     * @param doctorId Doctor ID
+     * @return true if exists
+     */
+    boolean exists(String doctorId);
+
+    /**
+     * Delete a doctor by ID.
+     * @param doctorId Doctor ID
+     */
+    void delete(String doctorId);
 }

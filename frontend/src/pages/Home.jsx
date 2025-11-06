@@ -1,7 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 function Home() {
+  const navigate = useNavigate();
+  const isAuthenticated = authAPI.isAuthenticated();
+  const userData = authAPI.getUserData();
+
+  useEffect(() => {
+    if (isAuthenticated && userData) {
+      // Redirect authenticated users to their portal
+      if (userData.role === 'ADMIN') {
+        navigate('/admin');
+      } else if (userData.role === 'PATIENT') {
+        navigate('/patient');
+      } else if (userData.role === 'DOCTOR') {
+        navigate('/doctor');
+      }
+    }
+  }, [isAuthenticated, userData, navigate]);
+
   return (
     <>
       <section className="hero">
@@ -9,8 +27,8 @@ function Home() {
           <h1>Digital Health Repository</h1>
           <p>Modern healthcare management system</p>
           <div className="btn-group" style={{ justifyContent: 'center' }}>
-            <Link to="/patient" className="btn btn-primary">Patient Portal</Link>
-            <Link to="/doctor" className="btn btn-outline">Doctor Portal</Link>
+            <Link to="/login" className="btn btn-primary">Login</Link>
+            <Link to="/register" className="btn btn-outline">Register</Link>
           </div>
         </div>
       </section>

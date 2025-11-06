@@ -1,14 +1,29 @@
 // API Service for Digital Health System
 const API_BASE = '/api';
 
+// Get auth token from localStorage
+const getAuthToken = () => localStorage.getItem('authToken');
+const getUserData = () => {
+  const userData = localStorage.getItem('userData');
+  return userData ? JSON.parse(userData) : null;
+};
+
 // Generic request handler
 async function apiRequest(endpoint, options = {}) {
   try {
+    const token = getAuthToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    
+    // Add auth token if available
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       ...options,
     });
 
@@ -48,6 +63,10 @@ export const patientAPI = {
     method: 'PUT',
     body: JSON.stringify(patient),
   }),
+
+  delete: (id) => apiRequest(`/patients/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 // Doctor API
@@ -65,6 +84,10 @@ export const doctorAPI = {
     method: 'PUT',
     body: JSON.stringify(doctor),
   }),
+
+  delete: (id) => apiRequest(`/doctors/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 // Appointment API
@@ -73,20 +96,21 @@ export const appointmentAPI = {
   
   getById: (id) => apiRequest(`/appointments/${id}`),
   
-  getByPatient: (patientId) => apiRequest(`/appointments/patient/${patientId}`),
+  getByPatient: (patientId) => apiRequest(`/appointments?patientId=${patientId}`),
   
-  getByDoctor: (doctorId) => apiRequest(`/appointments/doctor/${doctorId}`),
+  getByDoctor: (doctorId) => apiRequest(`/appointments?doctorId=${doctorId}`),
   
   book: (appointment) => apiRequest('/appointments/book', {
     method: 'POST',
     body: JSON.stringify(appointment),
   }),
   
-  updateStatus: (id, status) => apiRequest(`/appointments/${id}/status?status=${status}`, {
-    method: 'PUT',
+  cancel: (appointmentId) => apiRequest('/appointments/cancel', {
+    method: 'POST',
+    body: JSON.stringify({ appointmentId }),
   }),
-  
-  cancel: (id) => apiRequest(`/appointments/${id}`, {
+
+  delete: (id) => apiRequest(`/appointments/${id}`, {
     method: 'DELETE',
   }),
 };
@@ -97,7 +121,7 @@ export const healthRecordAPI = {
   
   getById: (id) => apiRequest(`/health-records/${id}`),
   
-  getByPatient: (patientId) => apiRequest(`/health-records/patient/${patientId}`),
+  getByPatient: (patientId) => apiRequest(`/health-records?patientId=${patientId}`),
   
   add: (record) => apiRequest('/health-records/add', {
     method: 'POST',
@@ -108,6 +132,45 @@ export const healthRecordAPI = {
     method: 'PUT',
     body: JSON.stringify(record),
   }),
+
+  delete: (id) => apiRequest(`/health-records/${id}`, {
+    method: 'DELETE',
+  }),
+};
+
+// Authentication API
+export const authAPI = {
+  login: (credentials) => apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  }),
+  
+  register: (userData) => apiRequest('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  }),
+  
+  validate: (token) => apiRequest('/auth/validate', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  }),
+
+  // Helper functions
+  setAuth: (userData, token) => {
+    localStorage.setItem('userData', JSON.stringify(userData));
+    localStorage.setItem('authToken', token);
+  },
+
+  clearAuth: () => {
+    localStorage.removeItem('userData');
+    localStorage.removeItem('authToken');
+  },
+
+  isAuthenticated: () => {
+    return !!getAuthToken();
+  },
+
+  getUserData: () => getUserData(),
 };
 
 export default {
@@ -115,4 +178,5 @@ export default {
   doctors: doctorAPI,
   appointments: appointmentAPI,
   healthRecords: healthRecordAPI,
+  auth: authAPI,
 };

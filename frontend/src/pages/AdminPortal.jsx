@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { patientAPI, doctorAPI, appointmentAPI, healthRecordAPI } from '../services/api';
+import { patientAPI, doctorAPI, appointmentAPI, healthRecordAPI, authAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import './AdminPortal.css';
 
 function AdminPortal() {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     patients: 0,
     doctors: 0,
@@ -11,11 +15,19 @@ function AdminPortal() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [healthRecords, setHealthRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
+    // Check if user is admin
+    const userData = authAPI.getUserData();
+    if (!userData || userData.role !== 'ADMIN') {
+      navigate('/login');
+      return;
+    }
     loadAllData();
-  }, []);
+  }, [navigate]);
 
   const loadAllData = async () => {
     setLoading(true);
@@ -30,6 +42,7 @@ function AdminPortal() {
       setPatients(patientsData);
       setDoctors(doctorsData);
       setAppointments(appointmentsData);
+      setHealthRecords(recordsData);
       
       setStats({
         patients: patientsData.length,
@@ -39,138 +52,353 @@ function AdminPortal() {
       });
     } catch (error) {
       console.error('Failed to load data:', error);
+      showMessage('error', 'Failed to load data: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getAppointmentStats = () => {
-    const statusCount = appointments.reduce((acc, apt) => {
-      acc[apt.status] = (acc[apt.status] || 0) + 1;
-      return acc;
-    }, {});
-    return statusCount;
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
 
-  const appointmentStats = getAppointmentStats();
+  const handleDeletePatient = async (patientId, patientName) => {
+    if (!window.confirm(`Are you sure you want to delete patient "${patientName}" (${patientId})?`)) {
+      return;
+    }
+
+    try {
+      await patientAPI.delete(patientId);
+      showMessage('success', 'Patient deleted successfully');
+      loadAllData();
+    } catch (error) {
+      showMessage('error', 'Failed to delete patient: ' + error.message);
+    }
+  };
+
+  const handleDeleteDoctor = async (doctorId, doctorName) => {
+    if (!window.confirm(`Are you sure you want to delete doctor "${doctorName}" (${doctorId})?`)) {
+      return;
+    }
+
+    try {
+      await doctorAPI.delete(doctorId);
+      showMessage('success', 'Doctor deleted successfully');
+      loadAllData();
+    } catch (error) {
+      showMessage('error', 'Failed to delete doctor: ' + error.message);
+    }
+  };
+
+  const handleDeleteAppointment = async (appointmentId) => {
+    if (!window.confirm(`Are you sure you want to delete appointment ${appointmentId}?`)) {
+      return;
+    }
+
+    try {
+      await appointmentAPI.delete(appointmentId);
+      showMessage('success', 'Appointment deleted successfully');
+      loadAllData();
+    } catch (error) {
+      showMessage('error', 'Failed to delete appointment: ' + error.message);
+    }
+  };
+
+  const handleDeleteHealthRecord = async (recordId) => {
+    if (!window.confirm(`Are you sure you want to delete health record ${recordId}?`)) {
+      return;
+    }
+
+    try {
+      await healthRecordAPI.delete(recordId);
+      showMessage('success', 'Health record deleted successfully');
+      loadAllData();
+    } catch (error) {
+      showMessage('error', 'Failed to delete health record: ' + error.message);
+    }
+  };
+
+  const handleLogout = () => {
+    authAPI.clearAuth();
+    navigate('/login');
+  };
 
   if (loading) {
     return (
-      <div className="container" style={{ marginTop: '2rem', textAlign: 'center' }}>
-        <h1>Loading...</h1>
+      <div className="admin-container">
+        <div className="loading-spinner">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-      <h1>Admin Dashboard</h1>
-      <p style={{ color: 'var(--gray-500)', marginBottom: '2rem' }}>System Overview and Analytics</p>
+    <div className="admin-container">
+      <div className="admin-wrapper">
+        <div className="admin-header">
+          <h1>🛡️ Admin Dashboard</h1>
+          <button onClick={handleLogout} className="logout-button">
+            Logout
+          </button>
+        </div>
 
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>{stats.patients}</h3>
-          <p>Total Patients</p>
-        </div>
-        <div className="stat-card">
-          <h3>{stats.doctors}</h3>
-          <p>Total Doctors</p>
-        </div>
-        <div className="stat-card">
-          <h3>{stats.appointments}</h3>
-          <p>Total Appointments</p>
-        </div>
-        <div className="stat-card">
-          <h3>{stats.healthRecords}</h3>
-          <p>Health Records</p>
-        </div>
+        {message.text && (
+          <div className={`message ${message.type}`}>
+            {message.type === 'success' ? '✅' : '❌'} {message.text}
+          </div>
+        )}
+
+        <div className="admin-tabs">
+        <button
+          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          Overview
+        </button>
+        <button
+          className={`tab ${activeTab === 'patients' ? 'active' : ''}`}
+          onClick={() => setActiveTab('patients')}
+        >
+          Patients ({stats.patients})
+        </button>
+        <button
+          className={`tab ${activeTab === 'doctors' ? 'active' : ''}`}
+          onClick={() => setActiveTab('doctors')}
+        >
+          Doctors ({stats.doctors})
+        </button>
+        <button
+          className={`tab ${activeTab === 'appointments' ? 'active' : ''}`}
+          onClick={() => setActiveTab('appointments')}
+        >
+          Appointments ({stats.appointments})
+        </button>
+        <button
+          className={`tab ${activeTab === 'records' ? 'active' : ''}`}
+          onClick={() => setActiveTab('records')}
+        >
+          Health Records ({stats.healthRecords})
+        </button>
       </div>
 
-      {/* Appointment Status Breakdown */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Appointment Status Breakdown</h2>
-        </div>
-        <div className="grid grid-2">
-          {Object.entries(appointmentStats).map(([status, count]) => (
-            <div key={status} className="list-item">
-              <strong>{status}</strong>
-              <div style={{ fontSize: '1.5rem', marginTop: '0.5rem' }}>{count}</div>
+      <div className="admin-content">
+        {activeTab === 'overview' && (
+          <div className="overview-grid">
+            <div className="stat-card">
+              <div className="stat-icon">👤</div>
+              <div className="stat-value">{stats.patients}</div>
+              <div className="stat-label">Total Patients</div>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="stat-card">
+              <div className="stat-icon">👨‍⚕️</div>
+              <div className="stat-value">{stats.doctors}</div>
+              <div className="stat-label">Total Doctors</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">📅</div>
+              <div className="stat-value">{stats.appointments}</div>
+              <div className="stat-label">Total Appointments</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">📋</div>
+              <div className="stat-value">{stats.healthRecords}</div>
+              <div className="stat-label">Health Records</div>
+            </div>
+          </div>
+        )}
 
-      {/* Recent Patients */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">All Patients</h2>
-          <p className="card-subtitle">{patients.length} registered patients</p>
-        </div>
-        <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-          {patients.map(patient => (
-            <div key={patient.patientId} className="list-item">
-              <strong>{patient.name}</strong> - {patient.age} years, {patient.gender}<br />
-              <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
-                ID: {patient.patientId} | Contact: {patient.contact}
-              </span>
+        {activeTab === 'patients' && (
+          <div className="data-section">
+            <div className="section-header">
+              <h2>👤 Patients Management</h2>
+              <button onClick={loadAllData} className="refresh-button">
+                🔄 Refresh
+              </button>
             </div>
-          ))}
-        </div>
-      </div>
+            {patients.length === 0 ? (
+              <div className="empty-state">No patients found</div>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Contact</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {patients.map((patient) => (
+                    <tr key={patient.patientId}>
+                      <td><code>{patient.patientId}</code></td>
+                      <td>{patient.name}</td>
+                      <td>{patient.age}</td>
+                      <td>{patient.gender}</td>
+                      <td>{patient.contact}</td>
+                      <td>
+                        <button
+                          onClick={() => handleDeletePatient(patient.patientId, patient.name)}
+                          className="delete-button"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
 
-      {/* All Doctors */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">All Doctors</h2>
-          <p className="card-subtitle">{doctors.length} registered doctors</p>
-        </div>
-        <div className="grid grid-2">
-          {doctors.map(doctor => (
-            <div key={doctor.doctorId} className="card" style={{ margin: 0 }}>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Dr. {doctor.name}</h3>
-              <p style={{ color: 'var(--gray-500)', marginBottom: '0.75rem' }}>{doctor.specialty}</p>
-              <div style={{ fontSize: '0.875rem' }}>
-                <div>📞 {doctor.contact}</div>
-                <div>✉️ {doctor.email}</div>
-                <div>🕒 {doctor.schedule}</div>
-              </div>
+        {activeTab === 'doctors' && (
+          <div className="data-section">
+            <div className="section-header">
+              <h2>👨‍⚕️ Doctors Management</h2>
+              <button onClick={loadAllData} className="refresh-button">
+                🔄 Refresh
+              </button>
             </div>
-          ))}
-        </div>
-      </div>
+            {doctors.length === 0 ? (
+              <div className="empty-state">No doctors found</div>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Specialty</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {doctors.map((doctor) => (
+                    <tr key={doctor.doctorId}>
+                      <td><code>{doctor.doctorId}</code></td>
+                      <td>{doctor.name}</td>
+                      <td>{doctor.specialty}</td>
+                      <td>{doctor.contact}</td>
+                      <td>{doctor.email || 'N/A'}</td>
+                      <td>
+                        <button
+                          onClick={() => handleDeleteDoctor(doctor.doctorId, doctor.name)}
+                          className="delete-button"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
 
-      {/* Recent Appointments */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">All Appointments</h2>
-          <p className="card-subtitle">{appointments.length} total appointments</p>
-        </div>
-        <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-          {appointments.map(apt => (
-            <div key={apt.appointmentId} className="list-item">
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong>{apt.dateTime}</strong>
-                <span style={{ 
-                  marginLeft: '1rem', 
-                  padding: '0.25rem 0.5rem', 
-                  background: apt.status === 'COMPLETED' ? 'var(--gray-900)' : 'var(--gray-200)',
-                  color: apt.status === 'COMPLETED' ? 'var(--white)' : 'var(--gray-900)',
-                  fontSize: '0.75rem',
-                  fontWeight: '600'
-                }}>
-                  {apt.status}
-                </span>
-              </div>
-              Patient ID: {apt.patientId} | Doctor ID: {apt.doctorId}<br />
-              Reason: {apt.reason}
+        {activeTab === 'appointments' && (
+          <div className="data-section">
+            <div className="section-header">
+              <h2>📅 Appointments Management</h2>
+              <button onClick={loadAllData} className="refresh-button">
+                🔄 Refresh
+              </button>
             </div>
-          ))}
-        </div>
+            {appointments.length === 0 ? (
+              <div className="empty-state">No appointments found</div>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appointments.map((apt) => (
+                    <tr key={apt.appointmentId}>
+                      <td><code>{apt.appointmentId}</code></td>
+                      <td><code>{apt.patientId}</code></td>
+                      <td><code>{apt.doctorId}</code></td>
+                      <td>{apt.dateTime}</td>
+                      <td>
+                        <span className={`status-badge ${apt.status.toLowerCase()}`}>
+                          {apt.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleDeleteAppointment(apt.appointmentId)}
+                          className="delete-button"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'records' && (
+          <div className="data-section">
+            <div className="section-header">
+              <h2>📋 Health Records Management</h2>
+              <button onClick={loadAllData} className="refresh-button">
+                🔄 Refresh
+              </button>
+            </div>
+            {healthRecords.length === 0 ? (
+              <div className="empty-state">No health records found</div>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Diagnosis</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {healthRecords.map((record) => (
+                    <tr key={record.recordId}>
+                      <td><code>{record.recordId}</code></td>
+                      <td><code>{record.patientId}</code></td>
+                      <td><code>{record.doctorId}</code></td>
+                      <td>{record.date}</td>
+                      <td>{record.diagnosis}</td>
+                      <td>
+                        <button
+                          onClick={() => handleDeleteHealthRecord(record.recordId)}
+                          className="delete-button"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+      </div>
       </div>
     </div>
   );
 }
 
 export default AdminPortal;
+

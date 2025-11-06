@@ -79,4 +79,22 @@ public class FilePatientDao implements PatientDao {
             lock.writeLock().unlock();
         }
     }
+
+    @Override
+    public boolean exists(String patientId) {
+        Map<String, Patient> patients = loadAll();
+        return patients.containsKey(patientId);
+    }
+
+    @Override
+    public void delete(String patientId) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Patient> patients = loadAll();
+            patients.remove(patientId);
+            saveAll(patients);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 }

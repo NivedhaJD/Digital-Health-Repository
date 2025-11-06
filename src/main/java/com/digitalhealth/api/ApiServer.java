@@ -36,6 +36,11 @@ public class ApiServer {
         // CORS and static files
         server.createContext("/", this::handleStaticFiles);
         
+        // Authentication endpoints
+        server.createContext("/api/auth/register", this::handleAuthRegister);
+        server.createContext("/api/auth/login", this::handleAuthLogin);
+        server.createContext("/api/auth/validate", this::handleAuthValidate);
+        
         // Patient endpoints
         server.createContext("/api/patients", this::handlePatients);
         server.createContext("/api/patients/register", this::handleRegisterPatient);
@@ -100,6 +105,104 @@ public class ApiServer {
         return "text/plain";
     }
 
+    // Authentication handlers
+    private void handleAuthRegister(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                // Create UserDTO
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUsername(data.get("username"));
+                userDTO.setPassword(data.get("password"));
+                userDTO.setRole(data.get("role"));
+                userDTO.setLinkedEntityId(data.get("linkedEntityId"));
+                
+                String userId = facade.registerUser(userDTO);
+                sendJsonResponse(exchange, 201, "{\"userId\":\"" + userId + "\",\"message\":\"User registered successfully\"}");
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    private void handleAuthLogin(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                // Create LoginRequestDTO
+                LoginRequestDTO loginRequest = new LoginRequestDTO();
+                loginRequest.setUsername(data.get("username"));
+                loginRequest.setPassword(data.get("password"));
+                
+                LoginResponseDTO response = facade.login(loginRequest);
+                
+                // Convert to JSON
+                String json = String.format("{\"userId\":\"%s\",\"username\":\"%s\",\"role\":\"%s\",\"token\":\"%s\",\"linkedEntityId\":\"%s\"}",
+                    response.getUserId(), response.getUsername(), response.getRole(), response.getToken(),
+                    response.getLinkedEntityId() != null ? response.getLinkedEntityId() : "");
+                
+                sendJsonResponse(exchange, 200, json);
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 401, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    private void handleAuthValidate(HttpExchange exchange) throws IOException {
+        setCorsHeaders(exchange);
+        
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+        
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String requestBody = readRequestBody(exchange);
+                Map<String, String> data = parseJson(requestBody);
+                
+                String token = data.get("token");
+                LoginResponseDTO response = facade.validateToken(token);
+                
+                // Convert to JSON
+                String json = String.format("{\"userId\":\"%s\",\"username\":\"%s\",\"role\":\"%s\",\"token\":\"%s\",\"linkedEntityId\":\"%s\"}",
+                    response.getUserId(), response.getUsername(), response.getRole(), response.getToken(),
+                    response.getLinkedEntityId() != null ? response.getLinkedEntityId() : "");
+                
+                sendJsonResponse(exchange, 200, json);
+            } catch (ValidationException e) {
+                sendJsonResponse(exchange, 401, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
     // Patient handlers
     private void handlePatients(HttpExchange exchange) throws IOException {
         setCorsHeaders(exchange);
@@ -113,6 +216,26 @@ public class ApiServer {
             List<PatientDTO> patients = facade.listPatients();
             String json = toJson(patients);
             sendJsonResponse(exchange, 200, json);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract patient ID from URL path: /api/patients/{patientId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Patient ID is required\"}");
+                return;
+            }
+            
+            String patientId = parts[3]; // /api/patients/{patientId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deletePatient(patientId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Patient deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
         }
     }
 
@@ -177,6 +300,26 @@ public class ApiServer {
             List<DoctorDTO> doctors = facade.listDoctors();
             String json = toJson(doctors);
             sendJsonResponse(exchange, 200, json);
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract doctor ID from URL path: /api/doctors/{doctorId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Doctor ID is required\"}");
+                return;
+            }
+            
+            String doctorId = parts[3]; // /api/doctors/{doctorId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteDoctor(doctorId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Doctor deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
         }
     }
 
@@ -232,6 +375,26 @@ public class ApiServer {
             } else {
                 List<AppointmentDTO> appointments = facade.listAppointments();
                 sendJsonResponse(exchange, 200, toJson(appointments));
+            }
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract appointment ID from URL path: /api/appointments/{appointmentId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Appointment ID is required\"}");
+                return;
+            }
+            
+            String appointmentId = parts[3]; // /api/appointments/{appointmentId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteAppointment(appointmentId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Appointment deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }
@@ -315,6 +478,26 @@ public class ApiServer {
             } else {
                 List<HealthRecordDTO> records = facade.listAllHealthRecords();
                 sendJsonResponse(exchange, 200, toJson(records));
+            }
+        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+            // Extract health record ID from URL path: /api/health-records/{recordId}
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            if (parts.length < 4) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Health record ID is required\"}");
+                return;
+            }
+            
+            String recordId = parts[3]; // /api/health-records/{recordId}
+            
+            try {
+                // TODO: Add token validation and admin role check
+                facade.deleteHealthRecord(recordId);
+                sendJsonResponse(exchange, 200, "{\"message\":\"Health record deleted successfully\"}");
+            } catch (EntityNotFoundException e) {
+                sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }

@@ -104,10 +104,24 @@ public class MySQLAppointmentDao implements AppointmentDao {
         
         return appointments;
     }
-    
-    /**
-     * Delete an appointment by ID (MySQL-specific method).
-     */
+
+    @Override
+    public boolean exists(String appointmentId) {
+        String sql = "SELECT COUNT(*) FROM appointments WHERE appointment_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, appointmentId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking if appointment exists: " + e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
     public void delete(String appointmentId) {
         String sql = "DELETE FROM appointments WHERE appointment_id = ?";
         

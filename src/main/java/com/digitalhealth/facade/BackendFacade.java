@@ -29,17 +29,43 @@ public class BackendFacade {
     private final AppointmentService appointmentService;
     private final HealthRecordService healthRecordService;
     private final ExportService exportService;
+    private final AuthService authService;
 
     public BackendFacade(PatientService patientService,
                         DoctorService doctorService,
                         AppointmentService appointmentService,
                         HealthRecordService healthRecordService,
-                        ExportService exportService) {
+                        ExportService exportService,
+                        AuthService authService) {
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.appointmentService = appointmentService;
         this.healthRecordService = healthRecordService;
         this.exportService = exportService;
+        this.authService = authService;
+    }
+
+    // ========== Authentication Operations ==========
+
+    /**
+     * Register a new user.
+     */
+    public String registerUser(UserDTO userDTO) throws ValidationException {
+        return authService.register(userDTO);
+    }
+
+    /**
+     * Login user and return token.
+     */
+    public LoginResponseDTO login(LoginRequestDTO loginRequest) throws ValidationException {
+        return authService.login(loginRequest);
+    }
+
+    /**
+     * Validate token and return user info.
+     */
+    public LoginResponseDTO validateToken(String token) throws ValidationException {
+        return authService.validateToken(token);
     }
 
     // ========== Patient Operations ==========
@@ -332,5 +358,35 @@ public class BackendFacade {
     public void exportPatientHistory(String patientId, String outputFilePath) 
             throws EntityNotFoundException, IOException {
         exportService.exportPatientHistory(patientId, outputFilePath);
+    }
+
+    // ========== Delete Operations (Admin Only) ==========
+
+    /**
+     * Delete a patient by ID.
+     */
+    public void deletePatient(String patientId) throws EntityNotFoundException {
+        patientService.deletePatient(patientId);
+    }
+
+    /**
+     * Delete a doctor by ID.
+     */
+    public void deleteDoctor(String doctorId) throws EntityNotFoundException {
+        doctorService.deleteDoctor(doctorId);
+    }
+
+    /**
+     * Delete an appointment by ID.
+     */
+    public void deleteAppointment(String appointmentId) throws EntityNotFoundException {
+        appointmentService.deleteAppointment(appointmentId);
+    }
+
+    /**
+     * Delete a health record by ID.
+     */
+    public void deleteHealthRecord(String recordId) throws EntityNotFoundException {
+        healthRecordService.deleteHealthRecord(recordId);
     }
 }

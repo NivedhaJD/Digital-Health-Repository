@@ -143,6 +143,18 @@ public class HealthRecordService {
         }
     }
 
+    /**
+     * Delete a health record by ID.
+     * 
+     * @param recordId ID of the health record to delete
+     * @throws EntityNotFoundException if health record doesn't exist
+     */
+    public void deleteHealthRecord(String recordId) throws EntityNotFoundException {
+        HealthRecord record = healthRecordDao.findById(recordId)
+                .orElseThrow(() -> new EntityNotFoundException("Health record not found with ID: " + recordId));
+        healthRecordDao.delete(recordId);
+    }
+
     private HealthRecordDTO toDTO(HealthRecord record) {
         HealthRecordDTO dto = new HealthRecordDTO(
                 record.getPatientId(),

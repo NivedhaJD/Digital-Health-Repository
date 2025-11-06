@@ -150,23 +150,6 @@ public class MySQLDoctorDao implements DoctorDao {
         return doctors;
     }
     
-    /**
-     * Delete a doctor by ID (MySQL-specific method).
-     */
-    public void delete(String doctorId) {
-        String sql = "DELETE FROM doctors WHERE doctor_id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, doctorId);
-            pstmt.executeUpdate();
-            
-        } catch (SQLException e) {
-            throw new RuntimeException("Error deleting doctor: " + e.getMessage(), e);
-        }
-    }
-    
     private List<LocalDateTime> loadSlotsForDoctor(String doctorId) {
         List<LocalDateTime> slots = new ArrayList<>();
         String sql = "SELECT slot_datetime FROM doctor_slots WHERE doctor_id = ? AND is_available = TRUE";
@@ -186,5 +169,64 @@ public class MySQLDoctorDao implements DoctorDao {
         }
         
         return slots;
+    }
+
+    @Override
+    public boolean exists(String doctorId) {
+        String sql = "SELECT COUNT(*) FROM doctors WHERE doctor_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, doctorId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking if doctor exists: " + e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
+    public void delete(String doctorId) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            
+            // Delete slots first (foreign key constraint)
+            String deleteSql = "DELETE FROM doctor_slots WHERE doctor_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteSql)) {
+                pstmt.setString(1, doctorId);
+                pstmt.executeUpdate();
+            }
+            
+            // Delete doctor
+            String doctorSql = "DELETE FROM doctors WHERE doctor_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(doctorSql)) {
+                pstmt.setString(1, doctorId);
+                pstmt.executeUpdate();
+            }
+            
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    // Ignore
+                }
+            }
+            throw new RuntimeException("Error deleting doctor: " + e.getMessage(), e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    // Ignore
+                }
+            }
+        }
     }
 }

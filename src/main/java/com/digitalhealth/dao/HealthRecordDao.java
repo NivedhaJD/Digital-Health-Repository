@@ -33,4 +33,17 @@ public interface HealthRecordDao {
      * @param record HealthRecord to save
      */
     void save(HealthRecord record);
+
+    /**
+     * Check if a health record exists by ID.
+     * @param recordId Record ID
+     * @return true if exists, false otherwise
+     */
+    boolean exists(String recordId);
+
+    /**
+     * Delete a health record by ID.
+     * @param recordId Record ID
+     */
+    void delete(String recordId);
 }
