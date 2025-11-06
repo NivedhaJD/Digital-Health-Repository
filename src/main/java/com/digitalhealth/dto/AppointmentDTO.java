@@ -16,6 +16,7 @@ public class AppointmentDTO implements Serializable {
     private String doctorId;
     private LocalDateTime dateTime;
     private AppointmentStatus status;
+    private String reason;
 
     public AppointmentDTO() {
     }
@@ -34,6 +35,16 @@ public class AppointmentDTO implements Serializable {
         this.doctorId = doctorId;
         this.dateTime = dateTime;
         this.status = status;
+    }
+
+    public AppointmentDTO(String appointmentId, String patientId, String doctorId, 
+                         LocalDateTime dateTime, AppointmentStatus status, String reason) {
+        this.appointmentId = appointmentId;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.dateTime = dateTime;
+        this.status = status;
+        this.reason = reason;
     }
 
     // Getters and setters
@@ -77,6 +88,14 @@ public class AppointmentDTO implements Serializable {
         this.status = status;
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     @Override
     public String toString() {
         return "AppointmentDTO{" +
@@ -85,6 +104,7 @@ public class AppointmentDTO implements Serializable {
                 ", doctorId='" + doctorId + '\'' +
                 ", dateTime=" + dateTime +
                 ", status=" + status +
+                ", reason='" + reason + '\'' +
                 '}';
     }
 }

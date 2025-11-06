@@ -43,12 +43,16 @@ public class DtoMapper {
      */
     public static DoctorDTO toDTO(Doctor doctor) {
         if (doctor == null) return null;
-        return new DoctorDTO(
+        DoctorDTO dto = new DoctorDTO(
             doctor.getDoctorId(),
             doctor.getName(),
             doctor.getSpecialty(),
-            doctor.getAvailableSlots()
+            doctor.getContact(),
+            doctor.getEmail(),
+            doctor.getSchedule()
         );
+        dto.setAvailableSlots(doctor.getAvailableSlots());
+        return dto;
     }
 
     /**
@@ -56,12 +60,16 @@ public class DtoMapper {
      */
     public static Doctor toEntity(DoctorDTO dto) {
         if (dto == null) return null;
-        return new Doctor(
+        Doctor doctor = new Doctor(
             dto.getDoctorId(),
             dto.getName(),
             dto.getSpecialty(),
-            dto.getAvailableSlots()
+            dto.getContact(),
+            dto.getEmail(),
+            dto.getSchedule()
         );
+        doctor.setAvailableSlots(dto.getAvailableSlots());
+        return doctor;
     }
 
     /**
@@ -74,7 +82,8 @@ public class DtoMapper {
             appointment.getPatientId(),
             appointment.getDoctorId(),
             appointment.getDateTime(),
-            appointment.getStatus()
+            appointment.getStatus(),
+            appointment.getReason()
         );
     }
 
@@ -88,7 +97,8 @@ public class DtoMapper {
             dto.getPatientId(),
             dto.getDoctorId(),
             dto.getDateTime(),
-            dto.getStatus()
+            dto.getStatus(),
+            dto.getReason()
         );
     }
 
@@ -103,6 +113,7 @@ public class DtoMapper {
             record.getDate(),
             record.getSymptoms(),
             record.getDiagnosis(),
+            record.getTreatment(),
             record.getPrescription()
         );
         dto.setRecordId(record.getRecordId());
@@ -121,6 +132,7 @@ public class DtoMapper {
             dto.getDate(),
             dto.getSymptoms(),
             dto.getDiagnosis(),
+            dto.getTreatment(),
             dto.getPrescription()
         );
     }

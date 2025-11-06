@@ -180,7 +180,9 @@ public class ApiServer {
                     null,  // ID will be auto-generated
                     data.get("name"),
                     data.get("specialty"),
-                    null   // No slots initially
+                    data.get("contact"),
+                    data.get("email"),
+                    data.get("schedule")
                 );
                 
                 String doctorId = facade.registerDoctor(dto);
@@ -227,17 +229,31 @@ public class ApiServer {
         
         if ("POST".equals(exchange.getRequestMethod())) {
             String requestBody = readRequestBody(exchange);
+            System.out.println("Book Appointment Request Body: " + requestBody);
             Map<String, String> data = parseJson(requestBody);
             
             try {
                 String patientId = data.get("patientId");
                 String doctorId = data.get("doctorId");
-                LocalDateTime dateTime = LocalDateTime.parse(data.get("dateTime"), formatter);
+                String dateTimeStr = data.get("dateTime");
+                String reason = data.get("reason");
                 
-                AppointmentDTO appointment = facade.bookAppointment(patientId, doctorId, dateTime);
+                System.out.println("Parsed data - PatientID: " + patientId + ", DoctorID: " + doctorId + ", DateTime: " + dateTimeStr + ", Reason: " + reason);
+                
+                // Handle datetime-local format (YYYY-MM-DDTHH:MM)
+                LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);
+                
+                AppointmentDTO appointment = facade.bookAppointment(patientId, doctorId, dateTime, reason);
+                
                 sendJsonResponse(exchange, 201, "{\"appointmentId\":\"" + appointment.getAppointmentId() + "\",\"message\":\"Appointment booked successfully\"}");
             } catch (EntityNotFoundException | SlotUnavailableException | ValidationException e) {
+                System.err.println("Booking error (400): " + e.getMessage());
+                e.printStackTrace();
                 sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+            } catch (Exception e) {
+                System.err.println("Booking error (500): " + e.getMessage());
+                e.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"Invalid date/time format or server error: " + e.getMessage() + "\"}");
             }
         }
     }
@@ -299,12 +315,18 @@ public class ApiServer {
             Map<String, String> data = parseJson(requestBody);
             
             try {
+                String recordDateStr = data.get("recordDate");
+                LocalDateTime recordDate = (recordDateStr != null && !recordDateStr.isEmpty()) 
+                    ? LocalDateTime.parse(recordDateStr + "T00:00:00") 
+                    : LocalDateTime.now();
+                
                 HealthRecordDTO dto = new HealthRecordDTO(
                     data.get("patientId"),
                     data.get("doctorId"),
-                    LocalDateTime.now(),
+                    recordDate,
                     data.get("symptoms"),
                     data.get("diagnosis"),
+                    data.get("treatment"),
                     data.get("prescription")
                 );
                 
@@ -312,6 +334,8 @@ public class ApiServer {
                 sendJsonResponse(exchange, 201, "{\"recordId\":\"" + recordId + "\",\"message\":\"Health record added successfully\"}");
             } catch (EntityNotFoundException | ValidationException e) {
                 sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"Server error: " + e.getMessage() + "\"}");
             }
         }
     }
@@ -330,16 +354,16 @@ public class ApiServer {
 
     private Map<String, String> parseJson(String json) {
         Map<String, String> map = new HashMap<>();
-        json = json.trim().replaceAll("[{}]", "");
-        String[] pairs = json.split(",");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":");
-            if (keyValue.length == 2) {
-                String key = keyValue[0].trim().replaceAll("\"", "");
-                String value = keyValue[1].trim().replaceAll("\"", "");
-                map.put(key, value);
-            }
+        // Match "key":"value" patterns
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
+        java.util.regex.Matcher matcher = pattern.matcher(json);
+        
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            String value = matcher.group(2);
+            map.put(key, value);
         }
+        
         return map;
     }
 

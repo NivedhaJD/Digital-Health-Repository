@@ -161,6 +161,23 @@ public class BackendFacade {
     }
 
     /**
+     * Book an appointment with a reason.
+     * 
+     * @param patientId Patient ID
+     * @param doctorId Doctor ID
+     * @param dateTime Appointment date and time
+     * @param reason Reason for the appointment
+     * @return AppointmentDTO of the newly created appointment
+     * @throws EntityNotFoundException if patient or doctor not found
+     * @throws SlotUnavailableException if the requested slot is not available
+     * @throws ValidationException if validation fails (e.g., past date)
+     */
+    public AppointmentDTO bookAppointment(String patientId, String doctorId, LocalDateTime dateTime, String reason)
+            throws EntityNotFoundException, SlotUnavailableException, ValidationException {
+        return appointmentService.bookAppointment(patientId, doctorId, dateTime, reason);
+    }
+
+    /**
      * Cancel an appointment and restore the slot to doctor's availability.
      * 
      * @param appointmentId Appointment ID
