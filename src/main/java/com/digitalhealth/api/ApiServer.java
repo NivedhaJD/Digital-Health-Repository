@@ -61,16 +61,6 @@ public class ApiServer {
 
     private void handleStaticFiles(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
-        
-        // Skip API routes - they should be handled by specific handlers
-        if (path.startsWith("/api/")) {
-            String response = "404 Not Found: API endpoint not found";
-            exchange.sendResponseHeaders(404, response.length());
-            exchange.getResponseBody().write(response.getBytes());
-            exchange.getResponseBody().close();
-            return;
-        }
-        
         if (path.equals("/")) path = "/html/index.html";
         
         // Map paths to frontend directory structure
