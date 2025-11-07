@@ -39,21 +39,32 @@ public class BackendFactory {
      */
     public static BackendFacade create() {
         Properties props = loadProperties();
+        
+        String dbBackend = props.getProperty("db.backend", "file");
+        String dbEnabled = props.getProperty("db.enabled", "false");
         String dbUrl = props.getProperty("db.url");
         
-        // If database is configured, try MySQL first
-        if (dbUrl != null && !dbUrl.isEmpty()) {
-            if (DatabaseConnection.testConnection()) {
-                System.out.println("Using MySQL database backend");
-                return createMySQLBackend();
+        System.out.println("DB Backend: " + dbBackend);
+        System.out.println("DB Enabled: " + dbEnabled);
+        System.out.println("DB URL: " + dbUrl);
+        
+        // Check if MySQL is explicitly enabled
+        if ("mysql".equalsIgnoreCase(dbBackend) && "true".equalsIgnoreCase(dbEnabled)) {
+            if (dbUrl != null && !dbUrl.isEmpty()) {
+                if (DatabaseConnection.testConnection()) {
+                    System.out.println("✓ Using MySQL database backend");
+                    return createMySQLBackend();
+                } else {
+                    System.err.println("✗ Database connection failed, falling back to file-based backend");
+                }
             } else {
-                System.out.println("Database connection failed, falling back to file-based backend");
+                System.err.println("✗ Database URL not configured");
             }
         }
         
         // Fallback to file-based
         String dataDir = props.getProperty("data.directory", DEFAULT_DATA_DIR);
-        System.out.println("Using file-based backend");
+        System.out.println("✓ Using file-based backend (data directory: " + dataDir + ")");
         return createFileBackend(dataDir);
     }
 
@@ -128,16 +139,31 @@ public class BackendFactory {
 
     private static Properties loadProperties() {
         Properties props = new Properties();
-        File propFile = new File("application.properties");
         
+        // Try loading from current directory first
+        File propFile = new File("application.properties");
         if (propFile.exists()) {
             try (InputStream input = new FileInputStream(propFile)) {
                 props.load(input);
+                System.out.println("Loaded properties from: " + propFile.getAbsolutePath());
+                return props;
             } catch (IOException e) {
-                System.err.println("Warning: Could not load application.properties: " + e.getMessage());
+                System.err.println("Warning: Could not load application.properties from file: " + e.getMessage());
             }
         }
         
+        // Try loading from classpath
+        try (InputStream input = BackendFactory.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (input != null) {
+                props.load(input);
+                System.out.println("Loaded properties from classpath");
+                return props;
+            }
+        } catch (IOException e) {
+            System.err.println("Warning: Could not load application.properties from classpath: " + e.getMessage());
+        }
+        
+        System.err.println("Warning: application.properties not found");
         return props;
     }
 }
