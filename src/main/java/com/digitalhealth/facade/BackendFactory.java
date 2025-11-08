@@ -77,8 +77,7 @@ public class BackendFactory {
         DoctorDao doctorDao = new MySQLDoctorDao();
         AppointmentDao appointmentDao = new MySQLAppointmentDao();
         HealthRecordDao healthRecordDao = new MySQLHealthRecordDao();
-        // For now, use file-based for users even with MySQL (can be changed later)
-        UserDao userDao = new FileUserDao("data/users.dat");
+        UserDao userDao = new MySQLUserDao();
 
         return createFacade(patientDao, doctorDao, appointmentDao, healthRecordDao, userDao);
     }
