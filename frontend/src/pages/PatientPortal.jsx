@@ -9,6 +9,7 @@ function PatientPortal() {
   const [healthRecords, setHealthRecords] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [hasLinkedPatient, setHasLinkedPatient] = useState(false);
   
   // Form states
   const [patientForm, setPatientForm] = useState({
@@ -21,12 +22,38 @@ function PatientPortal() {
   useEffect(() => {
     loadPatients();
     loadDoctors();
+    checkLinkedPatient();
   }, []);
+
+  const checkLinkedPatient = async () => {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const linkedEntityId = userData.linkedEntityId;
+    
+    if (linkedEntityId && linkedEntityId.startsWith('P')) {
+      setHasLinkedPatient(true);
+      try {
+        const patient = await patientAPI.getById(linkedEntityId);
+        selectPatient(patient);
+      } catch (error) {
+        console.error('Failed to load linked patient:', error);
+      }
+    }
+  };
 
   const loadPatients = async () => {
     try {
-      const data = await patientAPI.getAll();
-      setPatients(data);
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const linkedEntityId = userData.linkedEntityId;
+      
+      // If user has a linked patient, only load that patient
+      if (linkedEntityId && linkedEntityId.startsWith('P')) {
+        const patient = await patientAPI.getById(linkedEntityId);
+        setPatients([patient]);
+      } else {
+        // Otherwise load all patients (for admin/staff view)
+        const data = await patientAPI.getAll();
+        setPatients(data);
+      }
     } catch (error) {
       showMessage('Failed to load patients', 'error');
     }
@@ -67,13 +94,29 @@ function PatientPortal() {
   const handleRegisterPatient = async (e) => {
     e.preventDefault();
     try {
-      await patientAPI.register({
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const userId = userData.userId;
+      
+      const response = await patientAPI.register({
         ...patientForm,
-        age: parseInt(patientForm.age)
+        age: parseInt(patientForm.age),
+        userId: userId
       });
       showMessage('Patient registered successfully', 'success');
       setPatientForm({ name: '', age: '', gender: '', contact: '', address: '', medicalHistory: '' });
-      loadPatients();
+      setHasLinkedPatient(true);
+      
+      // Update linkedEntityId in localStorage
+      if (response.patientId) {
+        userData.linkedEntityId = response.patientId;
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        // Fetch the complete patient object and select it
+        const patient = await patientAPI.getById(response.patientId);
+        selectPatient(patient);
+      }
+      
+      await loadPatients();
     } catch (error) {
       showMessage(error.message || 'Failed to register patient', 'error');
     }
@@ -82,10 +125,15 @@ function PatientPortal() {
   const handleBookAppointment = async (e) => {
     e.preventDefault();
     try {
-      console.log('Booking appointment with data:', appointmentForm);
+      console.log('=== BOOKING APPOINTMENT ===');
+      console.log('appointmentForm:', appointmentForm);
+      console.log('selectedPatient:', selectedPatient);
+      console.log('patientId in form:', appointmentForm.patientId);
+      
       await appointmentAPI.book(appointmentForm);
       showMessage('Appointment booked successfully', 'success');
-      setAppointmentForm({ patientId: '', doctorId: '', dateTime: '', reason: '' });
+      // Reset form but keep patientId for same patient
+      setAppointmentForm(prev => ({ patientId: prev.patientId, doctorId: '', dateTime: '', reason: '' }));
       if (selectedPatient) {
         loadAppointments(selectedPatient.patientId);
       }
@@ -96,11 +144,21 @@ function PatientPortal() {
   };
 
   const selectPatient = (patient) => {
+    console.log('=== SELECTING PATIENT ===');
+    console.log('Patient object:', patient);
+    console.log('Patient ID:', patient.patientId);
+    
     setSelectedPatient(patient);
-    setAppointmentForm({ ...appointmentForm, patientId: patient.patientId });
+    setAppointmentForm(prev => {
+      const newForm = { ...prev, patientId: patient.patientId };
+      console.log('Updated appointment form:', newForm);
+      return newForm;
+    });
     loadAppointments(patient.patientId);
     loadHealthRecords(patient.patientId);
-    setView('appointments');
+    // Only set view to appointments if we're currently in the register view
+    // This allows switching between appointments and health records
+    setView(currentView => currentView === 'register' ? 'appointments' : currentView);
   };
 
   return (
@@ -112,12 +170,14 @@ function PatientPortal() {
       )}
 
       <div className="btn-group" style={{ margin: '2rem 0' }}>
-        <button 
-          onClick={() => setView('register')} 
-          className={view === 'register' ? 'btn btn-primary' : 'btn btn-secondary'}
-        >
-          Register Patient
-        </button>
+        {!hasLinkedPatient && (
+          <button 
+            onClick={() => setView('register')} 
+            className={view === 'register' ? 'btn btn-primary' : 'btn btn-secondary'}
+          >
+            Register Patient
+          </button>
+        )}
         <button 
           onClick={() => setView('appointments')} 
           className={view === 'appointments' ? 'btn btn-primary' : 'btn btn-secondary'}
@@ -238,7 +298,7 @@ function PatientPortal() {
                       <select 
                         className="form-select"
                         value={appointmentForm.doctorId}
-                        onChange={(e) => setAppointmentForm({...appointmentForm, doctorId: e.target.value})}
+                        onChange={(e) => setAppointmentForm(prev => ({...prev, doctorId: e.target.value}))}
                         required
                       >
                         <option value="">Select Doctor</option>
@@ -255,7 +315,7 @@ function PatientPortal() {
                         type="datetime-local" 
                         className="form-input" 
                         value={appointmentForm.dateTime}
-                        onChange={(e) => setAppointmentForm({...appointmentForm, dateTime: e.target.value})}
+                        onChange={(e) => setAppointmentForm(prev => ({...prev, dateTime: e.target.value}))}
                         min={new Date().toISOString().slice(0, 16)}
                         required 
                       />
@@ -269,7 +329,7 @@ function PatientPortal() {
                     <textarea 
                       className="form-textarea" 
                       value={appointmentForm.reason}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, reason: e.target.value})}
+                      onChange={(e) => setAppointmentForm(prev => ({...prev, reason: e.target.value}))}
                       required
                     />
                   </div>
