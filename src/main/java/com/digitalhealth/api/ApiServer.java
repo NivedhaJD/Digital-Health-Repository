@@ -213,9 +213,31 @@ public class ApiServer {
         }
         
         if ("GET".equals(exchange.getRequestMethod())) {
-            List<PatientDTO> patients = facade.listPatients();
-            String json = toJson(patients);
-            sendJsonResponse(exchange, 200, json);
+            // Check if this is a request for a specific patient by ID
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            
+            // /api/patients/{patientId}
+            if (parts.length >= 4 && !parts[3].isEmpty()) {
+                String patientId = parts[3];
+                try {
+                    PatientDTO patient = facade.getPatient(patientId);
+                    String json = toJson(List.of(patient));
+                    // Extract single patient from array format
+                    json = json.substring(1, json.length() - 1); // Remove [ and ]
+                    sendJsonResponse(exchange, 200, json);
+                } catch (EntityNotFoundException e) {
+                    sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                }
+            } else {
+                // Get all patients
+                List<PatientDTO> patients = facade.listPatients();
+                String json = toJson(patients);
+                sendJsonResponse(exchange, 200, json);
+            }
         } else if ("DELETE".equals(exchange.getRequestMethod())) {
             // Extract patient ID from URL path: /api/patients/{patientId}
             String path = exchange.getRequestURI().getPath();
@@ -272,6 +294,17 @@ public class ApiServer {
                 
                 String patientId = facade.registerPatient(dto);
                 System.out.println("Patient registered successfully: " + patientId);
+                
+                // Link user with patient if userId is provided
+                if (data.containsKey("userId") && data.get("userId") != null && !data.get("userId").isEmpty()) {
+                    try {
+                        facade.linkUserToEntity(data.get("userId"), patientId);
+                        System.out.println("User " + data.get("userId") + " linked to patient " + patientId);
+                    } catch (Exception e) {
+                        System.err.println("Warning: Failed to link user to patient: " + e.getMessage());
+                    }
+                }
+                
                 sendJsonResponse(exchange, 201, "{\"patientId\":\"" + patientId + "\",\"message\":\"Patient registered successfully\"}");
             } catch (ValidationException e) {
                 System.err.println("Validation error: " + e.getMessage());
@@ -297,9 +330,31 @@ public class ApiServer {
         }
         
         if ("GET".equals(exchange.getRequestMethod())) {
-            List<DoctorDTO> doctors = facade.listDoctors();
-            String json = toJson(doctors);
-            sendJsonResponse(exchange, 200, json);
+            // Check if this is a request for a specific doctor by ID
+            String path = exchange.getRequestURI().getPath();
+            String[] parts = path.split("/");
+            
+            // /api/doctors/{doctorId}
+            if (parts.length >= 4 && !parts[3].isEmpty()) {
+                String doctorId = parts[3];
+                try {
+                    DoctorDTO doctor = facade.getDoctor(doctorId);
+                    String json = toJson(List.of(doctor));
+                    // Extract single doctor from array format
+                    json = json.substring(1, json.length() - 1); // Remove [ and ]
+                    sendJsonResponse(exchange, 200, json);
+                } catch (EntityNotFoundException e) {
+                    sendJsonResponse(exchange, 404, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                }
+            } else {
+                // Get all doctors
+                List<DoctorDTO> doctors = facade.listDoctors();
+                String json = toJson(doctors);
+                sendJsonResponse(exchange, 200, json);
+            }
         } else if ("DELETE".equals(exchange.getRequestMethod())) {
             // Extract doctor ID from URL path: /api/doctors/{doctorId}
             String path = exchange.getRequestURI().getPath();
@@ -346,6 +401,17 @@ public class ApiServer {
                 );
                 
                 String doctorId = facade.registerDoctor(dto);
+                
+                // Link user with doctor if userId is provided
+                if (data.containsKey("userId") && data.get("userId") != null && !data.get("userId").isEmpty()) {
+                    try {
+                        facade.linkUserToEntity(data.get("userId"), doctorId);
+                        System.out.println("User " + data.get("userId") + " linked to doctor " + doctorId);
+                    } catch (Exception e) {
+                        System.err.println("Warning: Failed to link user to doctor: " + e.getMessage());
+                    }
+                }
+                
                 sendJsonResponse(exchange, 201, "{\"doctorId\":\"" + doctorId + "\",\"message\":\"Doctor registered successfully\"}");
             } catch (ValidationException e) {
                 sendJsonResponse(exchange, 400, "{\"error\":\"" + e.getMessage() + "\"}");

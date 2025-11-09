@@ -8,6 +8,7 @@ function DoctorPortal() {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [hasLinkedDoctor, setHasLinkedDoctor] = useState(false);
   
   // Form states
   const [doctorForm, setDoctorForm] = useState({
@@ -20,12 +21,38 @@ function DoctorPortal() {
   useEffect(() => {
     loadDoctors();
     loadPatients();
+    checkLinkedDoctor();
   }, []);
+
+  const checkLinkedDoctor = async () => {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const linkedEntityId = userData.linkedEntityId;
+    
+    if (linkedEntityId && linkedEntityId.startsWith('D')) {
+      setHasLinkedDoctor(true);
+      try {
+        const doctor = await doctorAPI.getById(linkedEntityId);
+        selectDoctor(doctor);
+      } catch (error) {
+        console.error('Failed to load linked doctor:', error);
+      }
+    }
+  };
 
   const loadDoctors = async () => {
     try {
-      const data = await doctorAPI.getAll();
-      setDoctors(data);
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const linkedEntityId = userData.linkedEntityId;
+      
+      // If user has a linked doctor, only load that doctor
+      if (linkedEntityId && linkedEntityId.startsWith('D')) {
+        const doctor = await doctorAPI.getById(linkedEntityId);
+        setDoctors([doctor]);
+      } else {
+        // Otherwise load all doctors (for admin/staff view)
+        const data = await doctorAPI.getAll();
+        setDoctors(data);
+      }
     } catch (error) {
       showMessage('Failed to load doctors', 'error');
     }
@@ -57,10 +84,28 @@ function DoctorPortal() {
   const handleRegisterDoctor = async (e) => {
     e.preventDefault();
     try {
-      await doctorAPI.register(doctorForm);
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const userId = userData.userId;
+      
+      const response = await doctorAPI.register({
+        ...doctorForm,
+        userId: userId
+      });
       showMessage('Doctor registered successfully', 'success');
       setDoctorForm({ name: '', specialty: '', contact: '', email: '', schedule: '' });
-      loadDoctors();
+      setHasLinkedDoctor(true);
+      
+      // Update linkedEntityId in localStorage
+      if (response.doctorId) {
+        userData.linkedEntityId = response.doctorId;
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        // Fetch the complete doctor object and select it
+        const doctor = await doctorAPI.getById(response.doctorId);
+        selectDoctor(doctor);
+      }
+      
+      await loadDoctors();
     } catch (error) {
       showMessage(error.message || 'Failed to register doctor', 'error');
     }
@@ -104,12 +149,14 @@ function DoctorPortal() {
       )}
 
       <div className="btn-group" style={{ margin: '2rem 0' }}>
-        <button 
-          onClick={() => setView('register')} 
-          className={view === 'register' ? 'btn btn-primary' : 'btn btn-secondary'}
-        >
-          Register Doctor
-        </button>
+        {!hasLinkedDoctor && (
+          <button 
+            onClick={() => setView('register')} 
+            className={view === 'register' ? 'btn btn-primary' : 'btn btn-secondary'}
+          >
+            Register Doctor
+          </button>
+        )}
         <button 
           onClick={() => setView('appointments')} 
           className={view === 'appointments' ? 'btn btn-primary' : 'btn btn-secondary'}

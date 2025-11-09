@@ -145,6 +145,22 @@ public class AuthService {
         );
     }
 
+    /**
+     * Link user to a patient or doctor entity.
+     */
+    public void linkUserToEntity(String userId, String entityId) throws ValidationException {
+        Optional<User> userOpt = userDao.findById(userId);
+        
+        if (!userOpt.isPresent()) {
+            throw new ValidationException("User not found");
+        }
+
+        User user = userOpt.get();
+        user.setLinkedEntityId(entityId);
+        userDao.update(user);
+        System.out.println("User " + userId + " linked to entity " + entityId);
+    }
+
     private String generateUserId() {
         return String.format("U%04d", userCounter++);
     }

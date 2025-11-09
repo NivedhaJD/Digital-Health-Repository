@@ -68,6 +68,13 @@ public class BackendFacade {
         return authService.validateToken(token);
     }
 
+    /**
+     * Link user to a patient or doctor entity.
+     */
+    public void linkUserToEntity(String userId, String entityId) throws ValidationException {
+        authService.linkUserToEntity(userId, entityId);
+    }
+
     // ========== Patient Operations ==========
 
     /**
